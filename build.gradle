@@ -1,4 +1,10 @@
 subprojects {
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
     apply plugin: 'java'
 }
 
