@@ -1,7 +1,7 @@
 dependencies{
     compile(project(':feature'))
-    compile('org.junit.platform:junit-platform-engine:1.0.0-M1')
+    compile('org.junit.platform:junit-platform-engine:1.0.0-M2')
     compileOnly('info.cukes:cucumber-core:1.2.4')
-    testCompile('org.junit.platform:junit-platform-runner:1.0.0-M1')
+    testCompile('org.junit.platform:junit-platform-runner:1.0.0-M2')
     testCompile('info.cukes:cucumber-java:1.2.4')
 }
