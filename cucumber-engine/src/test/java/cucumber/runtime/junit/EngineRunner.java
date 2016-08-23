@@ -21,5 +21,5 @@ import org.junit.runner.RunWith;
  */
 @RunWith(JUnitPlatform.class)
 @IncludeEngines("cucumber-jvm")
-public class Runner {
+public class EngineRunner {
 }
