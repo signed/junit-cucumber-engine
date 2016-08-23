@@ -45,105 +45,109 @@ public class HandCrafted {
     }
 
     private Formatter formatter(Formatter formatter) {
-        return new Formatter() {
-            @Override
-            public void syntaxError(String state, String event, List<String> legalEvents, String uri, Integer line) {
-                System.out.println("HandCrafted.syntaxError");
-            }
-
-            @Override
-            public void uri(String uri) {
-                System.out.println("file: " + uri);
-            }
-
-            @Override
-            public void feature(Feature feature) {
-                System.out.println("HandCrafted.feature");
-            }
-
-            @Override
-            public void scenarioOutline(ScenarioOutline scenarioOutline) {
-                System.out.println("HandCrafted.scenarioOutline");
-            }
-
-            @Override
-            public void examples(Examples examples) {
-                System.out.println("HandCrafted.examples");
-            }
-
-            @Override
-            public void startOfScenarioLifeCycle(Scenario scenario) {
-                System.out.println("HandCrafted.startOfScenarioLifeCycle");
-            }
-
-            @Override
-            public void background(Background background) {
-                System.out.println("HandCrafted.background");
-            }
-
-            @Override
-            public void scenario(Scenario scenario) {
-                System.out.println("HandCrafted.scenario");
-            }
-
-            @Override
-            public void step(Step step) {
-                System.out.println("HandCrafted.step");
-            }
-
-            @Override
-            public void endOfScenarioLifeCycle(Scenario scenario) {
-                System.out.println("HandCrafted.endOfScenarioLifeCycle");
-            }
-
-            @Override
-            public void done() {
-                System.out.println("HandCrafted.done");
-            }
-
-            @Override
-            public void close() {
-                System.out.println("HandCrafted.close");
-            }
-
-            @Override
-            public void eof() {
-                System.out.println("HandCrafted.eof");
-            }
-        };
+        return new InvocationLoggingFormatter();
     }
 
     private Reporter reporter(Reporter reporter) {
-        return new Reporter() {
-            @Override
-            public void before(Match match, Result result) {
-                System.out.println("HandCrafted.before");
-            }
+        return new InvocationLoggingReporter();
+    }
 
-            @Override
-            public void result(Result result) {
-                System.out.println("HandCrafted.result");
-            }
+    private static class InvocationLoggingFormatter implements Formatter {
+        @Override
+        public void syntaxError(String state, String event, List<String> legalEvents, String uri, Integer line) {
+            System.out.println("InvocationLoggingFormatter.syntaxError");;
+        }
 
-            @Override
-            public void after(Match match, Result result) {
-                System.out.println("HandCrafted.after");
-            }
+        @Override
+        public void uri(String uri) {
+            System.out.println("file: " + uri);
+        }
 
-            @Override
-            public void match(Match match) {
-                System.out.println("HandCrafted.match");
-            }
+        @Override
+        public void feature(Feature feature) {
+            System.out.println("InvocationLoggingFormatter.feature");
+        }
 
-            @Override
-            public void embedding(String mimeType, byte[] data) {
-                System.out.println("HandCrafted.embedding");
-            }
+        @Override
+        public void scenarioOutline(ScenarioOutline scenarioOutline) {
+            System.out.println("InvocationLoggingFormatter.scenarioOutline");
+        }
 
-            @Override
-            public void write(String text) {
-                System.out.println("HandCrafted.write");
-            }
-        };
+        @Override
+        public void examples(Examples examples) {
+            System.out.println("InvocationLoggingFormatter.examples");
+        }
+
+        @Override
+        public void startOfScenarioLifeCycle(Scenario scenario) {
+            System.out.println("InvocationLoggingFormatter.startOfScenarioLifeCycle");
+        }
+
+        @Override
+        public void background(Background background) {
+            System.out.println("InvocationLoggingFormatter.background");
+        }
+
+        @Override
+        public void scenario(Scenario scenario) {
+            System.out.println("InvocationLoggingFormatter.scenario");
+        }
+
+        @Override
+        public void step(Step step) {
+            System.out.println("InvocationLoggingFormatter.step");
+        }
+
+        @Override
+        public void endOfScenarioLifeCycle(Scenario scenario) {
+            System.out.println("InvocationLoggingFormatter.endOfScenarioLifeCycle");
+        }
+
+        @Override
+        public void done() {
+            System.out.println("InvocationLoggingFormatter.done");
+        }
+
+        @Override
+        public void close() {
+            System.out.println("InvocationLoggingFormatter.close");
+        }
+
+        @Override
+        public void eof() {
+            System.out.println("InvocationLoggingFormatter.eof");
+        }
+    }
+
+    private static class InvocationLoggingReporter implements Reporter {
+        @Override
+        public void before(Match match, Result result) {
+            System.out.println("InvocationLoggingReporter.before");
+        }
+
+        @Override
+        public void result(Result result) {
+            System.out.println("InvocationLoggingReporter.result");
+        }
+
+        @Override
+        public void after(Match match, Result result) {
+            System.out.println("InvocationLoggingReporter.after");
+        }
+
+        @Override
+        public void match(Match match) {
+            System.out.println("InvocationLoggingReporter.match");
+        }
+
+        @Override
+        public void embedding(String mimeType, byte[] data) {
+            System.out.println("InvocationLoggingReporter.embedding");
+        }
+
+        @Override
+        public void write(String text) {
+            System.out.println("InvocationLoggingReporter.write");
+        }
     }
 }
