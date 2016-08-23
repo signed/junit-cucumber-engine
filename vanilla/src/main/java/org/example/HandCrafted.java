@@ -31,6 +31,7 @@ public class HandCrafted {
         RuntimeOptionsFactory runtimeOptionsFactory = new RuntimeOptionsFactory(clazz);
         RuntimeOptions runtimeOptions = runtimeOptionsFactory.create();
         runtimeOptions.getFeaturePaths().add("classpath:features");
+        runtimeOptions.getGlue().add("glue");
 
         ClassLoader classLoader = clazz.getClassLoader();
         ResourceLoader resourceLoader = new MultiLoader(classLoader);
@@ -38,10 +39,12 @@ public class HandCrafted {
 
         ClassFinder classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
         Runtime runtime = new Runtime(resourceLoader, classFinder, classLoader, runtimeOptions);
-        cucumberFeatures.forEach(cucumberFeature -> cucumberFeature.run(formatter(), reporter(), runtime));
+        Formatter formatter = runtimeOptions.formatter(classLoader);
+        Reporter reporter = runtimeOptions.reporter(classLoader);
+        cucumberFeatures.forEach(cucumberFeature -> cucumberFeature.run(formatter(formatter), reporter(reporter), runtime));
     }
 
-    private Formatter formatter() {
+    private Formatter formatter(Formatter formatter) {
         return new Formatter() {
             @Override
             public void syntaxError(String state, String event, List<String> legalEvents, String uri, Integer line) {
@@ -50,7 +53,7 @@ public class HandCrafted {
 
             @Override
             public void uri(String uri) {
-                System.out.println("HandCrafted.uri " + uri);
+                System.out.println("file: " + uri);
             }
 
             @Override
@@ -110,7 +113,7 @@ public class HandCrafted {
         };
     }
 
-    private Reporter reporter() {
+    private Reporter reporter(Reporter reporter) {
         return new Reporter() {
             @Override
             public void before(Match match, Result result) {
