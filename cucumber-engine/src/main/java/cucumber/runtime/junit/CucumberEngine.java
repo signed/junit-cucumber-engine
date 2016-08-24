@@ -12,22 +12,12 @@ import cucumber.runtime.model.CucumberFeature;
 import cucumber.runtime.model.CucumberScenario;
 import cucumber.runtime.model.CucumberScenarioOutline;
 import cucumber.runtime.model.CucumberTagStatement;
-import gherkin.formatter.Formatter;
-import gherkin.formatter.Reporter;
-import gherkin.formatter.model.Background;
-import gherkin.formatter.model.Examples;
-import gherkin.formatter.model.Feature;
-import gherkin.formatter.model.Match;
-import gherkin.formatter.model.Result;
-import gherkin.formatter.model.Scenario;
-import gherkin.formatter.model.ScenarioOutline;
 import gherkin.formatter.model.Step;
 import org.junit.platform.engine.EngineDiscoveryRequest;
 import org.junit.platform.engine.ExecutionRequest;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.discovery.ClassSelector;
-import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor;
 import org.junit.platform.engine.support.descriptor.EngineDescriptor;
 import org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine;
 import org.junit.platform.engine.support.hierarchical.Node;
@@ -84,9 +74,9 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
         }
     }
 
-    private CucumberFeatureDescriptor createDescriptorFor(UniqueId parentId, CucumberFeature cucumberFeature) {
+    private FeatureDescriptor createDescriptorFor(UniqueId parentId, CucumberFeature cucumberFeature) {
         UniqueId featureFileId = parentId.append("path", cucumberFeature.getPath());
-        CucumberFeatureDescriptor result = new CucumberFeatureDescriptor(featureFileId, cucumberFeature);
+        FeatureDescriptor result = new FeatureDescriptor(featureFileId, cucumberFeature);
         for (CucumberTagStatement cucumberTagStatement : cucumberFeature.getFeatureElements()) {
             result.addChild(createDescriptorFor(featureFileId, cucumberTagStatement));
         }
@@ -101,9 +91,9 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
         return createDescriptorFor(parentId, (CucumberScenarioOutline) cucumberTagStatement);
     }
 
-    private CucumberScenarioOutlineDescriptor createDescriptorFor(UniqueId parentId, CucumberScenarioOutline cucumberScenarioOutline) {
+    private OutlineDescriptor createDescriptorFor(UniqueId parentId, CucumberScenarioOutline cucumberScenarioOutline) {
         UniqueId scenarioOutlineId = parentId.append("scenario-outline", extractId(cucumberScenarioOutline));
-        CucumberScenarioOutlineDescriptor descriptor = new CucumberScenarioOutlineDescriptor(scenarioOutlineId, cucumberScenarioOutline.getVisualName(), cucumberScenarioOutline);
+        OutlineDescriptor descriptor = new OutlineDescriptor(scenarioOutlineId, cucumberScenarioOutline.getVisualName(), cucumberScenarioOutline);
 
         for (CucumberExamples cucumberExamples : cucumberScenarioOutline.getCucumberExamplesList()) {
             List<CucumberScenario> exampleScenarios = cucumberExamples.createExampleScenarios();
@@ -114,9 +104,9 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
         return descriptor;
     }
 
-    private CucumberScenarioDescriptor createDescriptorFor(UniqueId parentId, CucumberScenario cucumberScenario) {
+    private ScenarioDescriptor createDescriptorFor(UniqueId parentId, CucumberScenario cucumberScenario) {
         final UniqueId scenarioId = parentId.append("scenario", extractId(cucumberScenario));
-        final CucumberScenarioDescriptor descriptor = new CucumberScenarioDescriptor(scenarioId, cucumberScenario.getVisualName(), cucumberScenario);
+        final ScenarioDescriptor descriptor = new ScenarioDescriptor(scenarioId, cucumberScenario.getVisualName(), cucumberScenario);
 
         List<Step> allSteps = new ArrayList<Step>();
         for (Step backgroundStep : cucumberScenario.getCucumberBackground().getSteps()) {
@@ -132,7 +122,7 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
         }
         allSteps.addAll(cucumberScenario.getSteps());
         for (Step step : allSteps) {
-            descriptor.addChild(new CucumberStepDescriptor(scenarioId.append("step", step.getName()), step.getName(), step));
+            descriptor.addChild(new StepDescriptor(scenarioId.append("step", step.getName()), step.getName(), step));
         }
         return descriptor;
     }
@@ -147,186 +137,4 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
         return new CucumberExecutionContext(rootTestDescriptor.runtime());
     }
 
-    private static class CucumberStepDescriptor extends AbstractTestDescriptor implements Node<CucumberExecutionContext> {
-
-        private final Step step;
-
-        protected CucumberStepDescriptor(UniqueId uniqueId, String displayName, Step step) {
-            super(uniqueId, displayName);
-            this.step = step;
-        }
-
-        @Override
-        public boolean isContainer() {
-            return false;
-        }
-
-        @Override
-        public boolean isTest() {
-            return true;
-        }
-    }
-
-    private static class CucumberScenarioOutlineDescriptor extends AbstractTestDescriptor implements Node<CucumberExecutionContext> {
-
-        protected CucumberScenarioOutlineDescriptor(UniqueId uniqueId, String displayName, CucumberScenarioOutline cucumberScenarioOutline) {
-            super(uniqueId, displayName);
-        }
-
-        @Override
-        public boolean isContainer() {
-            return true;
-        }
-
-        @Override
-        public boolean isTest() {
-            return false;
-        }
-    }
-
-    private static class CucumberScenarioDescriptor extends AbstractTestDescriptor implements Node<CucumberExecutionContext> {
-
-        private final CucumberScenario cucumberScenario;
-
-        protected CucumberScenarioDescriptor(UniqueId uniqueId, String displayName, CucumberScenario cucumberScenario) {
-            super(uniqueId, displayName);
-            this.cucumberScenario = cucumberScenario;
-        }
-
-        @Override
-        public CucumberExecutionContext execute(CucumberExecutionContext context) throws Exception {
-            CucumberToJunitTranslator translator = new CucumberToJunitTranslator();
-            this.cucumberScenario.run(translator, translator, context.runtime());
-            return context;
-        }
-
-        @Override
-        public boolean isContainer() {
-            return true;
-        }
-
-        @Override
-        public boolean isTest() {
-            return false;
-        }
-    }
-
-    private static class CucumberToJunitTranslator implements Reporter, Formatter {
-
-        @Override
-        public void syntaxError(String state, String event, List<String> legalEvents, String uri, Integer line) {
-
-        }
-
-        @Override
-        public void uri(String uri) {
-
-        }
-
-        @Override
-        public void feature(Feature feature) {
-
-        }
-
-        @Override
-        public void scenarioOutline(ScenarioOutline scenarioOutline) {
-
-        }
-
-        @Override
-        public void examples(Examples examples) {
-
-        }
-
-        @Override
-        public void startOfScenarioLifeCycle(Scenario scenario) {
-
-        }
-
-        @Override
-        public void background(Background background) {
-
-        }
-
-        @Override
-        public void scenario(Scenario scenario) {
-
-        }
-
-        @Override
-        public void step(Step step) {
-
-        }
-
-        @Override
-        public void endOfScenarioLifeCycle(Scenario scenario) {
-
-        }
-
-        @Override
-        public void done() {
-
-        }
-
-        @Override
-        public void close() {
-
-        }
-
-        @Override
-        public void eof() {
-
-        }
-
-        @Override
-        public void before(Match match, Result result) {
-
-        }
-
-        @Override
-        public void result(Result result) {
-
-        }
-
-        @Override
-        public void after(Match match, Result result) {
-
-        }
-
-        @Override
-        public void match(Match match) {
-
-        }
-
-        @Override
-        public void embedding(String mimeType, byte[] data) {
-
-        }
-
-        @Override
-        public void write(String text) {
-
-        }
-    }
-
-    private static class CucumberFeatureDescriptor extends AbstractTestDescriptor implements Node<CucumberExecutionContext> {
-
-        private final CucumberFeature cucumberFeature;
-
-        public CucumberFeatureDescriptor(UniqueId featureFileId, CucumberFeature cucumberFeature) {
-            super(featureFileId, cucumberFeature.getGherkinFeature().getName());
-            this.cucumberFeature = cucumberFeature;
-        }
-
-        @Override
-        public boolean isContainer() {
-            return true;
-        }
-
-        @Override
-        public boolean isTest() {
-            return false;
-        }
-
-    }
 }
