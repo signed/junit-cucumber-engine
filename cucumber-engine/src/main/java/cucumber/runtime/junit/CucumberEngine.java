@@ -18,9 +18,7 @@ import org.junit.platform.engine.ExecutionRequest;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.discovery.ClassSelector;
-import org.junit.platform.engine.support.descriptor.EngineDescriptor;
 import org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine;
-import org.junit.platform.engine.support.hierarchical.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,20 +56,6 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
         }
 
         return cucumber;
-    }
-
-    public static class CucumberEngineDescriptor extends EngineDescriptor implements Node<CucumberExecutionContext> {
-
-        private final Runtime runtime;
-
-        public CucumberEngineDescriptor(UniqueId uniqueId, String displayName, Runtime runtime) {
-            super(uniqueId, displayName);
-            this.runtime = runtime;
-        }
-
-        public Runtime runtime() {
-            return runtime;
-        }
     }
 
     private FeatureDescriptor createDescriptorFor(UniqueId parentId, CucumberFeature cucumberFeature) {
