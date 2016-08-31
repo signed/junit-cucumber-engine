@@ -118,7 +118,7 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
     @Override
     protected CucumberExecutionContext createExecutionContext(ExecutionRequest request) {
         CucumberEngineDescriptor rootTestDescriptor = (CucumberEngineDescriptor) request.getRootTestDescriptor();
-        return new CucumberExecutionContext(rootTestDescriptor.runtime());
+        return new CucumberExecutionContext(request, rootTestDescriptor.runtime());
     }
 
 }

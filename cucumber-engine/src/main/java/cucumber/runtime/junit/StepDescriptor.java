@@ -14,6 +14,10 @@ class StepDescriptor extends AbstractTestDescriptor implements Node<CucumberExec
         this.step = step;
     }
 
+    public Step step() {
+        return step;
+    }
+
     @Override
     public boolean isLeaf() {
         return true;
