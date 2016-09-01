@@ -16,7 +16,6 @@ public class Steps {
     @After
     public void after(){
         System.out.println("execute after hook");
-        throw new RuntimeException("blub");
     }
 
     @Given("^alpha$")
