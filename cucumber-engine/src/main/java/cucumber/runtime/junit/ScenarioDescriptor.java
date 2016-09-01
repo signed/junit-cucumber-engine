@@ -21,14 +21,21 @@ class ScenarioDescriptor extends AbstractTestDescriptor implements Node<Cucumber
 
     @Override
     public CucumberExecutionContext execute(CucumberExecutionContext context) throws Exception {
+        CucumberToJunitTranslator translator = new CucumberToJunitTranslator(context, this);
+        this.cucumberScenario.run(translator, translator, context.runtime());
+        if (null != translator.somethingToRethrow()) {
+            throw translator.somethingToRethrow();
+        }
+        return context;
+    }
+
+    public Queue<StepDescriptor> childrenAsQeueu() {
         Set<? extends TestDescriptor> children = this.getChildren();
         Queue<StepDescriptor> steps = new LinkedList<>();
         for (TestDescriptor child : children) {
             steps.add((StepDescriptor) child);
         }
-        CucumberToJunitTranslator translator = new CucumberToJunitTranslator(context, steps);
-        this.cucumberScenario.run(translator, translator, context.runtime());
-        return context;
+        return steps;
     }
 
     @Override

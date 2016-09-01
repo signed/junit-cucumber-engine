@@ -1,14 +1,26 @@
 package glue;
 
+import cucumber.api.java.After;
+import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class Steps {
 
+    @Before
+    public void before(){
+        System.out.println("execute before hook");
+    }
+
+    @After
+    public void after(){
+        System.out.println("execute after hook");
+        throw new RuntimeException("blub");
+    }
+
     @Given("^alpha$")
     public void alpha() throws Throwable {
-        sleep();
     }
 
     @Given("^A$")

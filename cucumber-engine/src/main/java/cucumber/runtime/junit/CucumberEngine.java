@@ -49,7 +49,7 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
 
         ClassFinder classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
         Runtime runtime = new Runtime(resourceLoader, classFinder, classLoader, runtimeOptions);
-        CucumberEngineDescriptor cucumber = new CucumberEngineDescriptor(uniqueId, "cucumber", runtime);
+        CucumberEngineDescriptor cucumber = new CucumberEngineDescriptor(uniqueId, runtime, runtimeOptions);
 
         for (CucumberFeature cucumberFeature : cucumberFeatures) {
             cucumber.addChild(createDescriptorFor(uniqueId, cucumberFeature));
@@ -118,7 +118,7 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
     @Override
     protected CucumberExecutionContext createExecutionContext(ExecutionRequest request) {
         CucumberEngineDescriptor rootTestDescriptor = (CucumberEngineDescriptor) request.getRootTestDescriptor();
-        return new CucumberExecutionContext(request, rootTestDescriptor.runtime());
+        return new CucumberExecutionContext(request, rootTestDescriptor.runtime(), rootTestDescriptor.runtimeOptions());
     }
 
 }

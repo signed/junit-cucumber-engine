@@ -18,17 +18,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import static cucumber.runtime.Runtime.isPending;
+
 class CucumberToJunitTranslator implements Reporter, Formatter {
 
     private final CucumberExecutionContext context;
     private final Queue<StepDescriptor> stepDescriptors;
+    private final ScenarioDescriptor scenarioDescriptor;
     private final Queue<Step> steps = new LinkedList<>();
     private boolean inScenarioLifeCycle = false;
     private StepDescriptor currentStepDescriptor;
+    private boolean ignoredStep = false;
+    private Exception toReThrow;
+    private boolean scenarioAborted;
 
-    public CucumberToJunitTranslator(CucumberExecutionContext context, Queue<StepDescriptor> stepDescriptors) {
+    public CucumberToJunitTranslator(CucumberExecutionContext context, ScenarioDescriptor scenarioDescriptor) {
         this.context = context;
-        this.stepDescriptors = stepDescriptors;
+        this.scenarioDescriptor = scenarioDescriptor;
+        this.stepDescriptors = scenarioDescriptor.childrenAsQeueu();
+    }
+
+    public Exception somethingToRethrow() {
+        return toReThrow;
     }
 
     @Override
@@ -73,7 +84,7 @@ class CucumberToJunitTranslator implements Reporter, Formatter {
 
     @Override
     public void step(Step step) {
-        if(inScenarioLifeCycle){
+        if (inScenarioLifeCycle) {
             steps.add(step);
         }
     }
@@ -100,11 +111,14 @@ class CucumberToJunitTranslator implements Reporter, Formatter {
 
     @Override
     public void before(Match match, Result result) {
-
+        handleHook(result);
     }
 
     @Override
     public void match(Match match) {
+        if (scenarioAborted) {
+            return;
+        }
         currentStepDescriptor = fetchAndCheckRunnerStep();
         executionListener().executionStarted(currentStepDescriptor);
     }
@@ -116,7 +130,7 @@ class CucumberToJunitTranslator implements Reporter, Formatter {
 
     @Override
     public void after(Match match, Result result) {
-
+        handleHook(result);
     }
 
     @Override
@@ -129,9 +143,27 @@ class CucumberToJunitTranslator implements Reporter, Formatter {
 
     }
 
+    private void handleHook(Result result) {
+        if (Result.FAILED.equals(result.getStatus()) || (context.isStrict() && isPending(result.getError()))) {
+            scenarioAborted = true;
+            markRemainingStepsAsSkipped();
+            this.toReThrow = (Exception) result.getError();
+        } else {
+            if (isPending(result.getError())) {
+                ignoredStep = true;
+            }
+        }
+    }
+
+    private void markRemainingStepsAsSkipped() {
+        for (StepDescriptor stepDescriptor : stepDescriptors) {
+            executionListener().executionSkipped(stepDescriptor, "unknown");
+        }
+    }
+
     private StepDescriptor fetchAndCheckRunnerStep() {
         Step scenarioStep = steps.poll();
-        StepDescriptor stepDescriptor = this.stepDescriptors.poll();
+        StepDescriptor stepDescriptor = stepDescriptors.poll();
         Step runnerStep = stepDescriptor.step();
         if (!scenarioStep.getName().equals(runnerStep.getName())) {
             throw new CucumberException("Expected step: \"" + scenarioStep.getName() + "\" got step: \"" + runnerStep.getName() + "\"");
