@@ -1,9 +1,12 @@
 package cucumber.runtime.junit;
 
+import cucumber.runtime.Backend;
 import cucumber.runtime.ClassFinder;
+import cucumber.runtime.Reflections;
 import cucumber.runtime.Runtime;
 import cucumber.runtime.RuntimeOptions;
 import cucumber.runtime.RuntimeOptionsFactory;
+import cucumber.runtime.StopWatch;
 import cucumber.runtime.io.MultiLoader;
 import cucumber.runtime.io.ResourceLoader;
 import cucumber.runtime.io.ResourceLoaderClassFinder;
@@ -21,11 +24,17 @@ import org.junit.platform.engine.discovery.ClassSelector;
 import org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionContext> {
 
     public static final String ENGINE_ID = "cucumber-jvm";
+
+    private static Collection<? extends Backend> loadBackends(ResourceLoader resourceLoader, ClassFinder classFinder) {
+        Reflections reflections = new Reflections(classFinder);
+        return reflections.instantiateSubclasses(Backend.class, "cucumber.runtime", new Class[]{ResourceLoader.class}, new Object[]{resourceLoader});
+    }
 
     @Override
     public String getId() {
@@ -48,7 +57,11 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
         final List<CucumberFeature> cucumberFeatures = runtimeOptions.cucumberFeatures(resourceLoader);
 
         ClassFinder classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
-        Runtime runtime = new Runtime(resourceLoader, classFinder, classLoader, runtimeOptions);
+
+        Collection<? extends Backend> backends = loadBackends(resourceLoader, classFinder);
+
+        Runtime runtime = new Runtime(resourceLoader, classLoader, backends, runtimeOptions, StopWatch.SYSTEM, null);
+
         CucumberEngineDescriptor cucumber = new CucumberEngineDescriptor(uniqueId, runtime, runtimeOptions);
 
         for (CucumberFeature cucumberFeature : cucumberFeatures) {
