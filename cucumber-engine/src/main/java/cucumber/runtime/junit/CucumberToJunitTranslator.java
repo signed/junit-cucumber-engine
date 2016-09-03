@@ -24,21 +24,18 @@ class CucumberToJunitTranslator implements Reporter, Formatter {
 
     private final CucumberExecutionContext context;
     private final Queue<StepDescriptor> stepDescriptors;
-    private final ScenarioDescriptor scenarioDescriptor;
     private final Queue<Step> steps = new LinkedList<>();
     private boolean inScenarioLifeCycle = false;
     private StepDescriptor currentStepDescriptor;
-    private boolean ignoredStep = false;
     private Exception toReThrow;
     private boolean scenarioAborted;
 
-    public CucumberToJunitTranslator(CucumberExecutionContext context, ScenarioDescriptor scenarioDescriptor) {
+    CucumberToJunitTranslator(CucumberExecutionContext context, ScenarioDescriptor scenarioDescriptor) {
         this.context = context;
-        this.scenarioDescriptor = scenarioDescriptor;
         this.stepDescriptors = scenarioDescriptor.childrenAsQeueu();
     }
 
-    public Exception somethingToRethrow() {
+    Exception somethingToRethrow() {
         return toReThrow;
     }
 
@@ -125,7 +122,13 @@ class CucumberToJunitTranslator implements Reporter, Formatter {
 
     @Override
     public void result(Result result) {
-        executionListener().executionFinished(currentStepDescriptor, TestExecutionResult.successful());
+        if (Result.FAILED.equals(result.getStatus())) {
+            executionListener().executionFinished(currentStepDescriptor, TestExecutionResult.failed(result.getError()));
+        } else if (Result.PASSED.equals(result.getStatus())) {
+            executionListener().executionFinished(currentStepDescriptor, TestExecutionResult.successful());
+        } else {
+            throw new IllegalStateException("this is not handled properly yet");
+        }
     }
 
     @Override
@@ -148,10 +151,6 @@ class CucumberToJunitTranslator implements Reporter, Formatter {
             scenarioAborted = true;
             markRemainingStepsAsSkipped();
             this.toReThrow = (Exception) result.getError();
-        } else {
-            if (isPending(result.getError())) {
-                ignoredStep = true;
-            }
         }
     }
 

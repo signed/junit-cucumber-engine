@@ -29,7 +29,7 @@ import java.util.List;
 
 public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionContext> {
 
-    public static final String ENGINE_ID = "cucumber-jvm";
+    static final String ENGINE_ID = "cucumber-jvm";
 
     private static Collection<? extends Backend> loadBackends(ResourceLoader resourceLoader, ClassFinder classFinder) {
         Reflections reflections = new Reflections(classFinder);
@@ -71,7 +71,7 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
         return cucumber;
     }
 
-    private FeatureDescriptor createDescriptorFor(UniqueId parentId, CucumberFeature cucumberFeature) {
+    FeatureDescriptor createDescriptorFor(UniqueId parentId, CucumberFeature cucumberFeature) {
         UniqueId featureFileId = parentId.append("path", cucumberFeature.getPath());
         FeatureDescriptor result = new FeatureDescriptor(featureFileId, cucumberFeature);
         for (CucumberTagStatement cucumberTagStatement : cucumberFeature.getFeatureElements()) {
@@ -105,17 +105,19 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
         final UniqueId scenarioId = parentId.append("scenario", extractId(cucumberScenario));
         final ScenarioDescriptor descriptor = new ScenarioDescriptor(scenarioId, cucumberScenario.getVisualName(), cucumberScenario);
 
-        List<Step> allSteps = new ArrayList<Step>();
-        for (Step backgroundStep : cucumberScenario.getCucumberBackground().getSteps()) {
-            Step copy = new Step(
-                    backgroundStep.getComments(),
-                    backgroundStep.getKeyword(),
-                    backgroundStep.getName(),
-                    backgroundStep.getLine(),
-                    backgroundStep.getRows(),
-                    backgroundStep.getDocString()
-            );
-            allSteps.add(copy);
+        List<Step> allSteps = new ArrayList<>();
+        if (null != cucumberScenario.getCucumberBackground()) {
+            for (Step backgroundStep : cucumberScenario.getCucumberBackground().getSteps()) {
+                Step copy = new Step(
+                        backgroundStep.getComments(),
+                        backgroundStep.getKeyword(),
+                        backgroundStep.getName(),
+                        backgroundStep.getLine(),
+                        backgroundStep.getRows(),
+                        backgroundStep.getDocString()
+                );
+                allSteps.add(copy);
+            }
         }
         allSteps.addAll(cucumberScenario.getSteps());
         for (Step step : allSteps) {
