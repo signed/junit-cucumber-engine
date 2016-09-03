@@ -1,76 +1,40 @@
 package cucumber.runtime.junit;
 
-import cucumber.runtime.Backend;
-import cucumber.runtime.Runtime;
-import cucumber.runtime.RuntimeGlue;
-import cucumber.runtime.RuntimeOptions;
-import cucumber.runtime.StopWatch;
-import cucumber.runtime.UndefinedStepsTracker;
-import cucumber.runtime.model.CucumberFeature;
-import cucumber.runtime.xstream.LocalizedXStreams;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Test;
-import org.junit.platform.engine.ExecutionRequest;
-import org.junit.platform.engine.TestExecutionResult;
-import org.junit.platform.engine.UniqueId;
 
-import java.util.Collection;
-import java.util.Collections;
-
+import static cucumber.runtime.junit.CucumberEngineFixture.stepExecutionFails;
+import static cucumber.runtime.junit.CucumberEngineFixture.stepExecutionSucceeds;
 import static cucumber.runtime.junit.CucumberFeatureMother.anyScenario;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.platform.engine.TestExecutionResult.Status.FAILED;
+import static org.junit.platform.engine.TestExecutionResult.Status.SUCCESSFUL;
 
 public class CucumberEngineTest {
 
-    private final CucumberEngine engine = new CucumberEngine();
-    private final CapturingEngineExecutionListener engineExecutionListener = new CapturingEngineExecutionListener();
-    private final ClassLoader classLoader = this.getClass().getClassLoader();
-    private final RuntimeGlue glue = new RuntimeGlue(new UndefinedStepsTracker(), new LocalizedXStreams(classLoader));
+    private final CucumberEngineFixture fixture = new CucumberEngineFixture();
 
     @After
     public void allTestDescriptorsAreInAProperState() throws Exception {
-        engineExecutionListener.ensureAllInProperEndState();
+        fixture.engineExecutionListener.ensureAllInProperEndState();
     }
 
     @Test
     public void reportSuccessfullyExecutedSteps() throws Exception {
-        CucumberFeature cucumberFeature = anyScenario()
-                .Then("it works")
-                .build();
-        String stepText = "it works";
+        fixture.addStepDefinitionFor("it works", stepExecutionSucceeds());
+        fixture.run(anyScenario().Then("it works"));
 
-//        addStepDefinitionFor(stepText, stepExecutionFails());
-        addStepDefinitionFor(stepText, stepExecutionSucceeds());
-
-        UniqueId engineId = UniqueId.forEngine(CucumberEngine.ENGINE_ID);
-        RuntimeOptions runtimeOptions = new RuntimeOptions("");
-        Collection<? extends Backend> backends = Collections.singleton(new BackendStub());
-        Runtime runtime = new Runtime(null, classLoader, backends, runtimeOptions, StopWatch.SYSTEM, glue);
-        CucumberEngineDescriptor cucumberEngineDescriptor = new CucumberEngineDescriptor(engineId, runtime, runtimeOptions);
-        cucumberEngineDescriptor.addChild(engine.createDescriptorFor(engineId, cucumberFeature));
-        engine.execute(new ExecutionRequest(cucumberEngineDescriptor, engineExecutionListener, new NoConfigurationParameters()));
-        ExecutionRecord record = engineExecutionListener.executionRecordFor(stepText);
-        TestExecutionResult result = record.testExecutionResult;
-        result.getThrowable().ifPresent(Throwable::printStackTrace);
-
-        assertThat(result.getStatus(), CoreMatchers.equalTo(TestExecutionResult.Status.SUCCESSFUL));
+        assertThat(fixture.executionReportFor("it works").testExecutionResult.getStatus(), equalTo(SUCCESSFUL));
     }
 
-    private void addStepDefinitionFor(String stepText, Runnable stepExecution) {
-        glue.addStepDefinition(new ConfigurableStepDefinition(stepText, stepExecution));
+    @Test
+    public void reportFailedExecutedSteps() throws Exception {
+        fixture.addStepDefinitionFor("it works", stepExecutionFails());
+        fixture.run(anyScenario().Then("it works"));
+
+        assertThat(fixture.executionReportFor("it works").testExecutionResult.getStatus(), equalTo(FAILED));
     }
 
-    private Runnable stepExecutionSucceeds() {
-        return () -> {
-            //no exception marks success
-        };
-    }
-
-    private Runnable stepExecutionFails() {
-        return () -> {
-            throw new RuntimeException();
-        };
-    }
 
 }
