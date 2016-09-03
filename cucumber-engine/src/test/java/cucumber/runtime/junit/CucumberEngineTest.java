@@ -27,7 +27,6 @@ public class CucumberEngineTest {
     private final ClassLoader classLoader = this.getClass().getClassLoader();
     private final RuntimeGlue glue = new RuntimeGlue(new UndefinedStepsTracker(), new LocalizedXStreams(classLoader));
 
-
     @After
     public void allTestDescriptorsAreInAProperState() throws Exception {
         engineExecutionListener.ensureAllInProperEndState();
@@ -35,11 +34,9 @@ public class CucumberEngineTest {
 
     @Test
     public void reportSuccessfullyExecutedSteps() throws Exception {
-        CucumberFeature cucumberFeature = CucumberFeatureMother.feature("feature/Path", "" +
-                "Feature: feature name\n" +
-                "  Scenario: scenario name\n" +
-                "    Then it works\n");
-
+        CucumberFeature cucumberFeature = CucumberFeatureMother.anyScenario()
+                .Then("it works")
+                .build();
         String stepText = "it works";
 
 //        addStepDefinitionFor(stepText, stepExecutionFails());
@@ -63,7 +60,7 @@ public class CucumberEngineTest {
         glue.addStepDefinition(new ConfigurableStepDefinition(stepText, stepExecution));
     }
 
-    private Runnable stepExecutionSucceeds(){
+    private Runnable stepExecutionSucceeds() {
         return () -> {
             //no exception marks success
         };
