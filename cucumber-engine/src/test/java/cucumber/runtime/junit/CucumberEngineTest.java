@@ -18,6 +18,7 @@ import org.junit.platform.engine.UniqueId;
 import java.util.Collection;
 import java.util.Collections;
 
+import static cucumber.runtime.junit.CucumberFeatureMother.anyScenario;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CucumberEngineTest {
@@ -34,7 +35,7 @@ public class CucumberEngineTest {
 
     @Test
     public void reportSuccessfullyExecutedSteps() throws Exception {
-        CucumberFeature cucumberFeature = CucumberFeatureMother.anyScenario()
+        CucumberFeature cucumberFeature = anyScenario()
                 .Then("it works")
                 .build();
         String stepText = "it works";
