@@ -1,15 +1,16 @@
 package cucumber.runtime.junit;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static cucumber.runtime.junit.CucumberEngineFixture.stepExecutionFails;
 import static cucumber.runtime.junit.CucumberEngineFixture.stepExecutionSucceeds;
+import static cucumber.runtime.junit.ExecutionRecordMatcher.failed;
+import static cucumber.runtime.junit.ExecutionRecordMatcher.skipped;
+import static cucumber.runtime.junit.ExecutionRecordMatcher.successful;
 import static cucumber.runtime.junit.CucumberFeatureMother.anyScenario;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.platform.engine.TestExecutionResult.Status.FAILED;
-import static org.junit.platform.engine.TestExecutionResult.Status.SUCCESSFUL;
 
 public class CucumberEngineTest {
 
@@ -25,7 +26,7 @@ public class CucumberEngineTest {
         fixture.addStepDefinitionFor("it works", stepExecutionSucceeds());
         fixture.run(anyScenario().Then("it works"));
 
-        assertThat(fixture.executionReportFor("it works").testExecutionResult.getStatus(), equalTo(SUCCESSFUL));
+        assertThat(fixture.executionReportFor("it works"), successful());
     }
 
     @Test
@@ -33,8 +34,18 @@ public class CucumberEngineTest {
         fixture.addStepDefinitionFor("it works", stepExecutionFails());
         fixture.run(anyScenario().Then("it works"));
 
-        assertThat(fixture.executionReportFor("it works").testExecutionResult.getStatus(), equalTo(FAILED));
+        assertThat(fixture.executionReportFor("it works"), failed());
     }
 
+    @Test
+    @Ignore
+    public void markedStepsAfterAFailingStepAsSkipped() throws Exception {
+        fixture.addStepDefinitionFor("failing step", stepExecutionFails());
+        fixture.addStepDefinitionFor("after failing step", stepExecutionFails());
+
+        fixture.run(anyScenario().Given("failing step").Then("after failing step"));
+
+        assertThat(fixture.executionReportFor("after failing step"), skipped());
+    }
 
 }

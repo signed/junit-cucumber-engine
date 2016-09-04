@@ -37,6 +37,18 @@ class ExecutionRecord {
         return skippedWithReason() || startedAndFinishedWithResult();
     }
 
+    boolean wasSkipped(){
+        return skipped;
+    }
+
+    boolean wasStarted() {
+        return started;
+    }
+
+    boolean wasFinished() {
+        return finished;
+    }
+
     private boolean startedAndFinishedWithResult() {
         return started && finished && null != testExecutionResult;
     }
