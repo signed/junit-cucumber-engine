@@ -22,18 +22,18 @@ public class CucumberEngine_ReportStateOfTest implements CucumberEngineTestSugar
 
     @Test
     public void successfullyExecutedSteps() throws Exception {
-        stepImplementationFor("it works", whereExecutionSucceeds());
-        run(anyScenario().Then("it works"));
+        stepImplementationFor("a step", whereExecutionSucceeds());
+        run(anyScenario().AStep("a step"));
 
-        assertThat(executionRecordFor("it works"), successful());
+        assertThat(executionRecordFor("a step"), successful());
     }
 
     @Test
     public void failedSteps() throws Exception {
-        stepImplementationFor("it works", whereExecutionFails());
-        run(anyScenario().Then("it works"));
+        stepImplementationFor("a step", whereExecutionFails());
+        run(anyScenario().AStep("a step"));
 
-        assertThat(executionRecordFor("it works"), failed());
+        assertThat(executionRecordFor("a step"), failed());
     }
 
     @Test

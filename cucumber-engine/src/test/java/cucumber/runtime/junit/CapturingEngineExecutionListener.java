@@ -68,6 +68,9 @@ class CapturingEngineExecutionListener implements EngineExecutionListener {
         if (collect.size() > 1) {
             throw new IllegalStateException("there should be exactly one");
         }
+        if (collect.isEmpty()) {
+            throw new IllegalStateException("there is no execution record for '" + theString + "'");
+        }
         return collect.get(0);
     }
 }
