@@ -45,7 +45,7 @@ class CucumberEngineFixture {
         engine.execute(new ExecutionRequest(cucumberEngineDescriptor, engineExecutionListener, new NoConfigurationParameters()));
     }
 
-    ExecutionRecord executionReportFor(String stepText) {
+    ExecutionRecord executionRecordFor(String stepText) {
         return engineExecutionListener.executionRecordFor(stepText);
     }
 

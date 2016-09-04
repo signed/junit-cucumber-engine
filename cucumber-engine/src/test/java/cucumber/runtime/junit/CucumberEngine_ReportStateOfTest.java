@@ -11,7 +11,7 @@ import static cucumber.runtime.junit.ExecutionRecordMatcher.skipped;
 import static cucumber.runtime.junit.ExecutionRecordMatcher.successful;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class CucumberEngine_ReportStateOfTest {
+public class CucumberEngine_ReportStateOfTest implements CucumberEngineTestSugar{
 
     private final CucumberEngineFixture fixture = new CucumberEngineFixture();
 
@@ -22,36 +22,41 @@ public class CucumberEngine_ReportStateOfTest {
 
     @Test
     public void successfullyExecutedSteps() throws Exception {
-        fixture.stepImplementationFor("it works", whereExecutionSucceeds());
-        fixture.run(anyScenario().Then("it works"));
+        stepImplementationFor("it works", whereExecutionSucceeds());
+        run(anyScenario().Then("it works"));
 
-        assertThat(fixture.executionReportFor("it works"), successful());
+        assertThat(executionRecordFor("it works"), successful());
     }
 
     @Test
     public void failedSteps() throws Exception {
-        fixture.stepImplementationFor("it works", whereExecutionFails());
-        fixture.run(anyScenario().Then("it works"));
+        stepImplementationFor("it works", whereExecutionFails());
+        run(anyScenario().Then("it works"));
 
-        assertThat(fixture.executionReportFor("it works"), failed());
+        assertThat(executionRecordFor("it works"), failed());
     }
 
     @Test
     public void stepsAfterAFailingStepAsSkipped() throws Exception {
-        fixture.stepImplementationFor("failing step", whereExecutionFails());
-        fixture.stepImplementationFor("after failing step");
+        stepImplementationFor("failing step", whereExecutionFails());
+        stepImplementationFor("after failing step");
 
-        fixture.run(anyScenario().Given("failing step").Then("after failing step"));
+        run(anyScenario().Given("failing step").Then("after failing step"));
 
-        assertThat(fixture.executionReportFor("after failing step"), skipped());
+        assertThat(executionRecordFor("after failing step"), skipped());
     }
 
     @Test
     public void stepsAfterAFailingBeforeHookAsSkipped() throws Exception {
-        fixture.beforeHookImplementation(whereExecutionFails());
-        fixture.stepImplementationFor("after failing before hook");
+        beforeHookImplementation(whereExecutionFails());
+        stepImplementationFor("after failing before hook");
 
-        fixture.run(anyScenario().AStep("after failing before hook"));
-        assertThat(fixture.executionReportFor("after failing before hook"), skipped());
+        run(anyScenario().AStep("after failing before hook"));
+        assertThat(executionRecordFor("after failing before hook"), skipped());
+    }
+
+    @Override
+    public CucumberEngineFixture fixture() {
+        return fixture;
     }
 }
