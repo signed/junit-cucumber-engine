@@ -36,13 +36,18 @@ class CucumberEngineFixture {
     private final RuntimeGlue glue = new RuntimeGlue(new UndefinedStepsTracker(), new LocalizedXStreams(classLoader));
 
     void run(CucumberFeatureBuilder feature) {
+        CucumberEngineDescriptor cucumberEngineDescriptor = discoveredDescriptorsFor(feature);
+        engine.execute(new ExecutionRequest(cucumberEngineDescriptor, engineExecutionListener, new NoConfigurationParameters()));
+    }
+
+    CucumberEngineDescriptor discoveredDescriptorsFor(CucumberFeatureBuilder feature) {
         UniqueId engineId = UniqueId.forEngine(CucumberEngine.ENGINE_ID);
         RuntimeOptions runtimeOptions = new RuntimeOptions("");
         Collection<? extends Backend> backends = Collections.singleton(new BackendStub());
         Runtime runtime = new Runtime(null, classLoader, backends, runtimeOptions, StopWatch.SYSTEM, glue);
         CucumberEngineDescriptor cucumberEngineDescriptor = new CucumberEngineDescriptor(engineId, runtime, runtimeOptions);
         cucumberEngineDescriptor.addChild(engine.createDescriptorFor(engineId, feature.build()));
-        engine.execute(new ExecutionRequest(cucumberEngineDescriptor, engineExecutionListener, new NoConfigurationParameters()));
+        return cucumberEngineDescriptor;
     }
 
     ExecutionRecord executionRecordFor(String stepText) {

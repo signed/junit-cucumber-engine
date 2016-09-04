@@ -14,6 +14,10 @@ interface CucumberEngineTestSugar {
         fixture().beforeHookImplementation(hookImplementation);
     }
 
+    default CucumberEngineDescriptor discoveredDescriptorsFor(CucumberFeatureBuilder feature){
+        return fixture().discoveredDescriptorsFor(feature);
+    }
+
     default void run(CucumberFeatureBuilder feature) {
         fixture().run(feature);
     }

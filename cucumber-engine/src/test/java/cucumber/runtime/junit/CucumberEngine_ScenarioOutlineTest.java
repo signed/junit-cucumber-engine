@@ -33,7 +33,6 @@ public class CucumberEngine_ScenarioOutlineTest implements CucumberEngineTestSug
         assertThat(executionRecordFor("failed"), failed());
     }
 
-
     @Override
     public CucumberEngineFixture fixture() {
         return fixture;
