@@ -5,9 +5,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.platform.engine.TestDescriptor;
 
-import static cucumber.runtime.junit.UniqueIdMatcher.endsWith;
 import static cucumber.runtime.junit.CucumberFeatureMother.anyFeatureFile;
-import static cucumber.runtime.junit.CucumberFeatureMother.anyScenario;
+import static cucumber.runtime.junit.UniqueIdMatcher.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.platform.engine.UniqueId.forEngine;
@@ -15,6 +14,7 @@ import static org.junit.platform.engine.UniqueId.forEngine;
 public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar {
 
     private final CucumberEngineFixture fixture = new CucumberEngineFixture();
+    private final CucumberFeatureBuilder cucumberFeatureBuilder = anyFeatureFile();
 
     @After
     public void allTestDescriptorsAreInAProperState() throws Exception {
@@ -23,25 +23,21 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
 
     @Test
     public void topLevelCucumberEngine() throws Exception {
-        CucumberEngineDescriptor engineDescriptor = discoveredDescriptorsFor(anyScenario().When("does not matter"));
-
-        assertThat(engineDescriptor.getUniqueId(), equalTo(forEngine("cucumber-jvm")));
+        assertThat(engineDescriptor().getUniqueId(), equalTo(forEngine("cucumber-jvm")));
     }
 
     @Test
     public void pathToFeatureFile() throws Exception {
-        CucumberEngineDescriptor engineDescriptor = discoveredDescriptorsFor(anyScenario().path("/the/path").When("does not matter"));
-        TestDescriptor path = engineDescriptor.getChildren().iterator().next();
+        cucumberFeatureBuilder.path("/the/path");
 
-        assertThat(path.getUniqueId(), endsWith("feature", "/the/path"));
+        assertThat(featureDescriptor().getUniqueId(), endsWith("feature", "/the/path"));
     }
 
     @Test
     public void scenarioId() throws Exception {
-        CucumberEngineDescriptor engineDescriptor = discoveredDescriptorsFor(anyFeatureFile().Scenario("first line of the scenario\nextended description"));
-        TestDescriptor scenarioDescriptor = engineDescriptor.getChildren().iterator().next().getChildren().iterator().next();
+        cucumberFeatureBuilder.Scenario("first line of the scenario\nextended description");
 
-        assertThat(scenarioDescriptor.getUniqueId(), endsWith("scenario", "feature-name;first-line-of-the-scenario"));
+        assertThat(scenarioDescriptor().getUniqueId(), endsWith("scenario", "feature-name;first-line-of-the-scenario"));
     }
 
     @Test
@@ -54,6 +50,18 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
                         .Example("A", "B"));
 
         System.out.println(engineDescriptor);
+    }
+
+    private TestDescriptor scenarioDescriptor() {
+        return featureDescriptor().getChildren().iterator().next();
+    }
+
+    private TestDescriptor featureDescriptor() {
+        return engineDescriptor().getChildren().iterator().next();
+    }
+
+    private CucumberEngineDescriptor engineDescriptor() {
+        return discoveredDescriptorsFor(cucumberFeatureBuilder);
     }
 
     @Override
