@@ -37,7 +37,7 @@ public class CucumberEngineTest {
     }
 
     @Test
-    public void markedStepsAfterAFailingStepAsSkipped() throws Exception {
+    public void reportStepsAfterAFailingStepAsSkipped() throws Exception {
         fixture.stepImplementationFor("failing step", whereExecutionFails());
         fixture.stepImplementationFor("after failing step");
 
