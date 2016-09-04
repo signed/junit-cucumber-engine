@@ -10,7 +10,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.platform.engine.UniqueId.forEngine;
 
-public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar {
+public class CucumberEngine_IdAssignmentAndDisplayNameForTest implements CucumberEngineTestSugar {
 
     private final CucumberEngineFixture fixture = new CucumberEngineFixture();
     private final CucumberFeatureBuilder feature = anyFeatureFile();
