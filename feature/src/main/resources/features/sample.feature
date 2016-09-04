@@ -12,7 +12,7 @@ Feature: Just a sample
     When B
     Then C
 
-  Scenario Outline: Parameterized samples are even better
+  Scenario Outline: Parametrized samples are even better
   Again, a short description.
   In multiple lines.
     Given <parameter>
