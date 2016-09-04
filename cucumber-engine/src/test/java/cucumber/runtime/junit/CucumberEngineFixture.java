@@ -49,6 +49,10 @@ class CucumberEngineFixture {
         return engineExecutionListener.executionRecordFor(stepText);
     }
 
+    void beforeHookImplementation(Runnable runnable) {
+        glue.addBeforeHook(new ConfigurableHookDefinition(runnable));
+    }
+
     void stepImplementationFor(String stepText) {
         stepImplementationFor(stepText, whereExecutionResultDoesNotMatter());
     }
@@ -56,4 +60,5 @@ class CucumberEngineFixture {
     void stepImplementationFor(String stepText, Runnable stepExecution) {
         glue.addStepDefinition(new ConfigurableStepDefinition(stepText, stepExecution));
     }
+
 }

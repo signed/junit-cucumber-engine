@@ -46,4 +46,12 @@ public class CucumberEngineTest {
         assertThat(fixture.executionReportFor("after failing step"), skipped());
     }
 
+    @Test
+    public void reportStepsAfterAFailingBeforeHookAsSkipped() throws Exception {
+        fixture.beforeHookImplementation(whereExecutionFails());
+        fixture.stepImplementationFor("after failing before hook");
+
+        fixture.run(anyScenario().AStep("after failing before hook"));
+        assertThat(fixture.executionReportFor("after failing before hook"), skipped());
+    }
 }

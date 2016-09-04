@@ -43,6 +43,10 @@ class CucumberFeatureBuilder {
         return Step("Given", text);
     }
 
+    CucumberFeatureBuilder AStep(String text) {
+        return When(text);
+    }
+
     CucumberFeatureBuilder When(String text) {
         return Step("When", text);
     }
@@ -96,5 +100,4 @@ class CucumberFeatureBuilder {
         featureBuilder.close();
         return cucumberFeatures.get(0);
     }
-
 }
