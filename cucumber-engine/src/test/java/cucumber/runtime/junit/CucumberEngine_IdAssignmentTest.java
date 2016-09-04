@@ -4,12 +4,12 @@ import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.platform.engine.TestDescriptor;
-import org.junit.platform.engine.UniqueId;
 
 import static cucumber.runtime.junit.CucumberFeatureMother.anyFeatureFile;
 import static cucumber.runtime.junit.CucumberFeatureMother.anyScenario;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.platform.engine.UniqueId.forEngine;
 
 public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar {
 
@@ -24,7 +24,7 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
     public void topLevelCucumberEngine() throws Exception {
         CucumberEngineDescriptor engineDescriptor = discoveredDescriptorsFor(anyScenario().When("does not matter"));
 
-        assertThat(engineDescriptor.getUniqueId(), equalTo(UniqueId.forEngine("cucumber-jvm")));
+        assertThat(engineDescriptor.getUniqueId(), equalTo(forEngine("cucumber-jvm")));
     }
 
     @Test
@@ -32,7 +32,7 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
         CucumberEngineDescriptor engineDescriptor = discoveredDescriptorsFor(anyScenario().path("/the/path").When("does not matter"));
         TestDescriptor path = engineDescriptor.getChildren().iterator().next();
 
-        assertThat(path.getUniqueId(), equalTo(UniqueId.forEngine("cucumber-jvm").append("feature", "/the/path")));
+        assertThat(path.getUniqueId(), equalTo(forEngine("cucumber-jvm").append("feature", "/the/path")));
     }
 
     @Test
@@ -40,7 +40,7 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
         CucumberEngineDescriptor engineDescriptor = discoveredDescriptorsFor(anyFeatureFile().Scenario("first line of the scenario\nextended description"));
         TestDescriptor scenarioDescriptor = engineDescriptor.getChildren().iterator().next().getChildren().iterator().next();
 
-        assertThat(scenarioDescriptor.getUniqueId(), equalTo(UniqueId.forEngine("cucumber-jvm").append("feature","feature/Path").append("scenario", "feature-name;first-line-of-the-scenario")));
+        assertThat(scenarioDescriptor.getUniqueId(), equalTo(forEngine("cucumber-jvm").append("feature","feature/Path").append("scenario", "feature-name;first-line-of-the-scenario")));
     }
 
     @Test
