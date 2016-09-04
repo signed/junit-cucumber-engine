@@ -45,9 +45,8 @@ class CucumberEngineFixture {
         RuntimeOptions runtimeOptions = new RuntimeOptions("");
         Collection<? extends Backend> backends = Collections.singleton(new BackendStub());
         Runtime runtime = new Runtime(null, classLoader, backends, runtimeOptions, StopWatch.SYSTEM, glue);
-        CucumberEngineDescriptor cucumberEngineDescriptor = new CucumberEngineDescriptor(engineId, runtime, runtimeOptions);
-        cucumberEngineDescriptor.addChild(engine.createDescriptorFor(engineId, feature.build()));
-        return cucumberEngineDescriptor;
+
+        return new TestDescriptorCreator(engineId, runtimeOptions, runtime).createEngineDescriptorFor(Collections.singletonList(feature.build()));
     }
 
     ExecutionRecord executionRecordFor(String stepText) {
