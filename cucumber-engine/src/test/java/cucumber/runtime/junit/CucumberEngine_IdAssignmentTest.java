@@ -41,6 +41,13 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
     }
 
     @Test
+    public void scenarioOutlineId() throws Exception {
+        cucumberFeatureBuilder.ScenarioOutline("first line of the scenario outline\nextended description");
+
+        assertThat(scenarioOutlineDescriptor().getUniqueId(), endsWith("scenario-outline", "feature-name;first-line-of-the-scenario-outline"));
+    }
+
+    @Test
     @Ignore
     public void name() throws Exception {
         CucumberEngineDescriptor engineDescriptor = discoveredDescriptorsFor(
@@ -50,6 +57,10 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
                         .Example("A", "B"));
 
         System.out.println(engineDescriptor);
+    }
+
+    private TestDescriptor scenarioOutlineDescriptor() {
+        return featureDescriptor().getChildren().iterator().next();
     }
 
     private TestDescriptor scenarioDescriptor() {
