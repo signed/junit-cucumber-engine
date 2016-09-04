@@ -11,7 +11,7 @@ import static cucumber.runtime.junit.ExecutionRecordMatcher.skipped;
 import static cucumber.runtime.junit.ExecutionRecordMatcher.successful;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class CucumberEngineTest {
+public class CucumberEngine_ReportStateOfTest {
 
     private final CucumberEngineFixture fixture = new CucumberEngineFixture();
 
@@ -21,7 +21,7 @@ public class CucumberEngineTest {
     }
 
     @Test
-    public void reportSuccessfullyExecutedSteps() throws Exception {
+    public void successfullyExecutedSteps() throws Exception {
         fixture.stepImplementationFor("it works", whereExecutionSucceeds());
         fixture.run(anyScenario().Then("it works"));
 
@@ -29,7 +29,7 @@ public class CucumberEngineTest {
     }
 
     @Test
-    public void reportFailedExecutedSteps() throws Exception {
+    public void failedSteps() throws Exception {
         fixture.stepImplementationFor("it works", whereExecutionFails());
         fixture.run(anyScenario().Then("it works"));
 
@@ -37,7 +37,7 @@ public class CucumberEngineTest {
     }
 
     @Test
-    public void reportStepsAfterAFailingStepAsSkipped() throws Exception {
+    public void stepsAfterAFailingStepAsSkipped() throws Exception {
         fixture.stepImplementationFor("failing step", whereExecutionFails());
         fixture.stepImplementationFor("after failing step");
 
@@ -47,7 +47,7 @@ public class CucumberEngineTest {
     }
 
     @Test
-    public void reportStepsAfterAFailingBeforeHookAsSkipped() throws Exception {
+    public void stepsAfterAFailingBeforeHookAsSkipped() throws Exception {
         fixture.beforeHookImplementation(whereExecutionFails());
         fixture.stepImplementationFor("after failing before hook");
 
