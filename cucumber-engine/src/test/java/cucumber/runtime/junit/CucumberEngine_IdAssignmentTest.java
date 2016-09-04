@@ -62,6 +62,19 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
         assertThat(scenarioInScenarioOutline().getUniqueId(), endsWith("scenario", "feature-name;first-line;;2"));
     }
 
+    @Test
+    public void stepInScenarioOutlineId() throws Exception {
+        feature.ScenarioOutline("first-line")
+                .AStep("<arg1> <arg2>")
+                .Example("one", "two");
+
+        assertThat(stepInScenarioOutline().getUniqueId(), endsWith("step", "one two"));
+    }
+
+    private TestDescriptor stepInScenarioOutline() {
+        return scenarioInScenarioOutline().getChildren().iterator().next();
+    }
+
     private TestDescriptor scenarioInScenarioOutline() {
         return scenarioOutlineDescriptor().getChildren().iterator().next();
     }
