@@ -28,7 +28,6 @@ class ExecutionRecord {
     }
 
     void finishedWith(TestExecutionResult testExecutionResult) {
-        ensureNotSkipped();
         this.finished = true;
         this.testExecutionResult = testExecutionResult;
     }
@@ -55,11 +54,5 @@ class ExecutionRecord {
 
     private boolean skippedWithReason() {
         return skipped && null != skipReason;
-    }
-
-    private void ensureNotSkipped() {
-        if (skipped) {
-            throw new IllegalStateException(testDescriptor + " was skipped, how can it be finished?");
-        }
     }
 }

@@ -34,12 +34,19 @@ class CapturingEngineExecutionListener implements EngineExecutionListener {
 
     @Override
     public void executionFinished(TestDescriptor testDescriptor, TestExecutionResult testExecutionResult) {
+        ensureWasStarted(testDescriptor);
         recordedExecution.get(testDescriptor).finishedWith(testExecutionResult);
     }
 
     @Override
     public void reportingEntryPublished(TestDescriptor testDescriptor, ReportEntry entry) {
         throw new UnsupportedOperationException();
+    }
+
+    private void ensureWasStarted(TestDescriptor testDescriptor) {
+        if (!recordedExecution.get(testDescriptor).wasStarted()) {
+            throw new IllegalStateException("was not started before " + testDescriptor);
+        }
     }
 
     private void ensureThereIsNoExecutionRecordFor(TestDescriptor testDescriptor) {
@@ -58,7 +65,7 @@ class CapturingEngineExecutionListener implements EngineExecutionListener {
 
     ExecutionRecord executionRecordFor(String theString) {
         List<ExecutionRecord> collect = recordedExecution.values().stream().filter(recorded -> theString.equals(recorded.testDescriptor.getDisplayName())).collect(Collectors.toList());
-        if(collect.size() > 1){
+        if (collect.size() > 1) {
             throw new IllegalStateException("there should be exactly one");
         }
         return collect.get(0);
