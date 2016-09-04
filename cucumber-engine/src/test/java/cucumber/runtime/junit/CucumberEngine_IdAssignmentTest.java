@@ -23,59 +23,70 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
     @Test
     public void topLevelCucumberEngine() throws Exception {
         assertThat(engineDescriptor().getUniqueId(), equalTo(forEngine("cucumber-jvm")));
+        assertThat(engineDescriptor().getDisplayName(), equalTo("cucumber"));
     }
 
     @Test
-    public void pathToFeatureFile() throws Exception {
+    public void feature() throws Exception {
         feature.Feature("first line of feature description\nextended description");
 
         assertThat(featureDescriptor().getUniqueId(), endsWith("feature", "first-line-of-feature-description"));
+        assertThat(featureDescriptor().getDisplayName(), equalTo("first line of feature description"));
     }
 
     @Test
-    public void scenarioId() throws Exception {
+    public void scenario() throws Exception {
         feature.Scenario("first line of the scenario\nextended description");
 
         assertThat(scenarioDescriptor().getUniqueId(), endsWith("scenario", "feature-name;first-line-of-the-scenario"));
+        assertThat(scenarioDescriptor().getDisplayName(), equalTo("Scenario: first line of the scenario"));
     }
 
     @Test
-    public void scenarioStepId() throws Exception {
+    public void scenarioStep() throws Exception {
         feature.Scenario("first line of the scenario\nextended description").AStep("step text");
 
-        assertThat(scenarioDescriptor().getChildren().iterator().next().getUniqueId(), endsWith("step", "step text"));
+        assertThat(stepInScenarioDescriptor().getUniqueId(), endsWith("step", "step text"));
+        assertThat(stepInScenarioDescriptor().getDisplayName(), equalTo("step text"));
     }
 
     @Test
-    public void scenarioOutlineId() throws Exception {
+    public void scenarioOutline() throws Exception {
         feature.ScenarioOutline("first line of the scenario outline\nextended description");
 
         assertThat(scenarioOutlineDescriptor().getUniqueId(), endsWith("scenario-outline", "feature-name;first-line-of-the-scenario-outline"));
+        assertThat(scenarioOutlineDescriptor().getDisplayName(), equalTo("Scenario Outline: first line of the scenario outline"));
     }
 
     @Test
-    public void scenarioInScenarioOutlineId() throws Exception {
+    public void scenarioInScenarioOutline() throws Exception {
         feature.ScenarioOutline("first-line")
                 .AStep("<arg1> <arg2>")
                 .Example("one", "two");
 
-        assertThat(scenarioInScenarioOutline().getUniqueId(), endsWith("scenario", "feature-name;first-line;;2"));
+        assertThat(scenarioInScenarioOutlineDescriptor().getUniqueId(), endsWith("scenario", "feature-name;first-line;;2"));
+        assertThat(scenarioInScenarioOutlineDescriptor().getDisplayName(), equalTo("| one | two |"));
     }
 
     @Test
-    public void stepInScenarioOutlineId() throws Exception {
+    public void stepInScenarioOutline() throws Exception {
         feature.ScenarioOutline("first-line")
                 .AStep("<arg1> <arg2>")
                 .Example("one", "two");
 
-        assertThat(stepInScenarioOutline().getUniqueId(), endsWith("step", "one two"));
+        assertThat(stepInScenarioOutlineDescriptor().getUniqueId(), endsWith("step", "one two"));
+        assertThat(stepInScenarioOutlineDescriptor().getDisplayName(), equalTo("one two"));
     }
 
-    private TestDescriptor stepInScenarioOutline() {
-        return scenarioInScenarioOutline().getChildren().iterator().next();
+    private TestDescriptor stepInScenarioDescriptor() {
+        return scenarioDescriptor().getChildren().iterator().next();
     }
 
-    private TestDescriptor scenarioInScenarioOutline() {
+    private TestDescriptor stepInScenarioOutlineDescriptor() {
+        return scenarioInScenarioOutlineDescriptor().getChildren().iterator().next();
+    }
+
+    private TestDescriptor scenarioInScenarioOutlineDescriptor() {
         return scenarioOutlineDescriptor().getChildren().iterator().next();
     }
 
