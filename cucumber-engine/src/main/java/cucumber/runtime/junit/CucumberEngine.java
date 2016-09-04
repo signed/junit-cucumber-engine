@@ -72,7 +72,7 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
     }
 
     FeatureDescriptor createDescriptorFor(UniqueId parentId, CucumberFeature cucumberFeature) {
-        UniqueId featureFileId = parentId.append("path", cucumberFeature.getPath());
+        UniqueId featureFileId = parentId.append("feature", cucumberFeature.getPath());
         FeatureDescriptor result = new FeatureDescriptor(featureFileId, cucumberFeature);
         for (CucumberTagStatement cucumberTagStatement : cucumberFeature.getFeatureElements()) {
             result.addChild(createDescriptorFor(featureFileId, cucumberTagStatement));
