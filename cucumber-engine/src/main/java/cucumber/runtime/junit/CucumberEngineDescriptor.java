@@ -25,9 +25,4 @@ public class CucumberEngineDescriptor extends EngineDescriptor implements Node<C
         return runtimeOptions;
     }
 
-    @Override
-    public CucumberExecutionContext execute(CucumberExecutionContext context) throws Exception {
-        System.out.println(getUniqueId());
-        return context;
-    }
 }
