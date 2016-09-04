@@ -41,6 +41,13 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
     }
 
     @Test
+    public void scenarioStepId() throws Exception {
+        cucumberFeatureBuilder.Scenario("first line of the scenario\nextended description").AStep("step text");
+
+        assertThat(scenarioDescriptor().getChildren().iterator().next().getUniqueId(), endsWith("step", "step text"));
+    }
+
+    @Test
     public void scenarioOutlineId() throws Exception {
         cucumberFeatureBuilder.ScenarioOutline("first line of the scenario outline\nextended description");
 
