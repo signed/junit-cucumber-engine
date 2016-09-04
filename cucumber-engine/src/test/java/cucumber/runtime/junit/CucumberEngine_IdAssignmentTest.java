@@ -1,7 +1,6 @@
 package cucumber.runtime.junit;
 
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.platform.engine.TestDescriptor;
 
@@ -14,7 +13,7 @@ import static org.junit.platform.engine.UniqueId.forEngine;
 public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar {
 
     private final CucumberEngineFixture fixture = new CucumberEngineFixture();
-    private final CucumberFeatureBuilder cucumberFeatureBuilder = anyFeatureFile();
+    private final CucumberFeatureBuilder feature = anyFeatureFile();
 
     @After
     public void allTestDescriptorsAreInAProperState() throws Exception {
@@ -28,42 +27,43 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
 
     @Test
     public void pathToFeatureFile() throws Exception {
-        cucumberFeatureBuilder.Feature("first line of feature description\nextended description");
+        feature.Feature("first line of feature description\nextended description");
 
         assertThat(featureDescriptor().getUniqueId(), endsWith("feature", "first-line-of-feature-description"));
     }
 
     @Test
     public void scenarioId() throws Exception {
-        cucumberFeatureBuilder.Scenario("first line of the scenario\nextended description");
+        feature.Scenario("first line of the scenario\nextended description");
 
         assertThat(scenarioDescriptor().getUniqueId(), endsWith("scenario", "feature-name;first-line-of-the-scenario"));
     }
 
     @Test
     public void scenarioStepId() throws Exception {
-        cucumberFeatureBuilder.Scenario("first line of the scenario\nextended description").AStep("step text");
+        feature.Scenario("first line of the scenario\nextended description").AStep("step text");
 
         assertThat(scenarioDescriptor().getChildren().iterator().next().getUniqueId(), endsWith("step", "step text"));
     }
 
     @Test
     public void scenarioOutlineId() throws Exception {
-        cucumberFeatureBuilder.ScenarioOutline("first line of the scenario outline\nextended description");
+        feature.ScenarioOutline("first line of the scenario outline\nextended description");
 
         assertThat(scenarioOutlineDescriptor().getUniqueId(), endsWith("scenario-outline", "feature-name;first-line-of-the-scenario-outline"));
     }
 
     @Test
-    @Ignore
-    public void name() throws Exception {
-        CucumberEngineDescriptor engineDescriptor = discoveredDescriptorsFor(
-                anyFeatureFile().ScenarioOutline("text take\nExtended discription")
-                        .Given("<arg1> <arg2>")
-                        .Example("one", "two")
-                        .Example("A", "B"));
+    public void scenarioInScenarioOutlineId() throws Exception {
+        feature.ScenarioOutline("first-line")
+                .AStep("<arg1> <arg2>")
+                .Example("one", "two");
 
-        System.out.println(engineDescriptor);
+        assertThat(scenarioInScenarioOutline().getUniqueId(), endsWith("scenario", "feature-name;first-line;;2"));
+    }
+
+    private TestDescriptor scenarioInScenarioOutline() {
+        return scenarioOutlineDescriptor().getChildren().iterator().next();
     }
 
     private TestDescriptor scenarioOutlineDescriptor() {
@@ -79,7 +79,7 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
     }
 
     private CucumberEngineDescriptor engineDescriptor() {
-        return discoveredDescriptorsFor(cucumberFeatureBuilder);
+        return discoveredDescriptorsFor(feature);
     }
 
     @Override
