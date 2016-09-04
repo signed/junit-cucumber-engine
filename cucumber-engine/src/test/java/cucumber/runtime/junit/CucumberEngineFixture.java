@@ -14,13 +14,17 @@ import java.util.Collection;
 import java.util.Collections;
 
 class CucumberEngineFixture {
-    static Runnable stepExecutionFails() {
+    static Runnable whereExecutionFails() {
         return () -> {
             throw new RuntimeException();
         };
     }
 
-    static Runnable stepExecutionSucceeds() {
+    private static Runnable whereExecutionResultDoesNotMatter() {
+        return whereExecutionSucceeds();
+    }
+
+    static Runnable whereExecutionSucceeds() {
         return () -> {
             //no exception marks success
         };
@@ -45,7 +49,11 @@ class CucumberEngineFixture {
         return engineExecutionListener.executionRecordFor(stepText);
     }
 
-    void addStepDefinitionFor(String stepText, Runnable stepExecution) {
+    void stepImplementationFor(String stepText) {
+        stepImplementationFor(stepText, whereExecutionResultDoesNotMatter());
+    }
+
+    void stepImplementationFor(String stepText, Runnable stepExecution) {
         glue.addStepDefinition(new ConfigurableStepDefinition(stepText, stepExecution));
     }
 }

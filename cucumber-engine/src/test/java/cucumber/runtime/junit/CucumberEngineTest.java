@@ -3,8 +3,8 @@ package cucumber.runtime.junit;
 import org.junit.After;
 import org.junit.Test;
 
-import static cucumber.runtime.junit.CucumberEngineFixture.stepExecutionFails;
-import static cucumber.runtime.junit.CucumberEngineFixture.stepExecutionSucceeds;
+import static cucumber.runtime.junit.CucumberEngineFixture.whereExecutionFails;
+import static cucumber.runtime.junit.CucumberEngineFixture.whereExecutionSucceeds;
 import static cucumber.runtime.junit.CucumberFeatureMother.anyScenario;
 import static cucumber.runtime.junit.ExecutionRecordMatcher.failed;
 import static cucumber.runtime.junit.ExecutionRecordMatcher.skipped;
@@ -22,7 +22,7 @@ public class CucumberEngineTest {
 
     @Test
     public void reportSuccessfullyExecutedSteps() throws Exception {
-        fixture.addStepDefinitionFor("it works", stepExecutionSucceeds());
+        fixture.stepImplementationFor("it works", whereExecutionSucceeds());
         fixture.run(anyScenario().Then("it works"));
 
         assertThat(fixture.executionReportFor("it works"), successful());
@@ -30,7 +30,7 @@ public class CucumberEngineTest {
 
     @Test
     public void reportFailedExecutedSteps() throws Exception {
-        fixture.addStepDefinitionFor("it works", stepExecutionFails());
+        fixture.stepImplementationFor("it works", whereExecutionFails());
         fixture.run(anyScenario().Then("it works"));
 
         assertThat(fixture.executionReportFor("it works"), failed());
@@ -38,8 +38,8 @@ public class CucumberEngineTest {
 
     @Test
     public void markedStepsAfterAFailingStepAsSkipped() throws Exception {
-        fixture.addStepDefinitionFor("failing step", stepExecutionFails());
-        fixture.addStepDefinitionFor("after failing step", stepExecutionFails());
+        fixture.stepImplementationFor("failing step", whereExecutionFails());
+        fixture.stepImplementationFor("after failing step");
 
         fixture.run(anyScenario().Given("failing step").Then("after failing step"));
 
