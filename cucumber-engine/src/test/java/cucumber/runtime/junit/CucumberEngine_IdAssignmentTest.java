@@ -18,7 +18,7 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
     }
 
     @Test
-    public void toplevelCucumberEngine() throws Exception {
+    public void topLevelCucumberEngine() throws Exception {
         CucumberEngineDescriptor engineDescriptor = discoveredDescriptorsFor(anyScenarioOutline().When("blub"));
 
         assertThat(engineDescriptor.getUniqueId(), equalTo(UniqueId.forEngine("cucumber-jvm")));
