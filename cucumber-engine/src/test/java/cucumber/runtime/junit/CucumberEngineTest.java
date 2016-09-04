@@ -1,15 +1,14 @@
 package cucumber.runtime.junit;
 
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static cucumber.runtime.junit.CucumberEngineFixture.stepExecutionFails;
 import static cucumber.runtime.junit.CucumberEngineFixture.stepExecutionSucceeds;
+import static cucumber.runtime.junit.CucumberFeatureMother.anyScenario;
 import static cucumber.runtime.junit.ExecutionRecordMatcher.failed;
 import static cucumber.runtime.junit.ExecutionRecordMatcher.skipped;
 import static cucumber.runtime.junit.ExecutionRecordMatcher.successful;
-import static cucumber.runtime.junit.CucumberFeatureMother.anyScenario;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CucumberEngineTest {
@@ -38,7 +37,6 @@ public class CucumberEngineTest {
     }
 
     @Test
-    @Ignore
     public void markedStepsAfterAFailingStepAsSkipped() throws Exception {
         fixture.addStepDefinitionFor("failing step", stepExecutionFails());
         fixture.addStepDefinitionFor("after failing step", stepExecutionFails());

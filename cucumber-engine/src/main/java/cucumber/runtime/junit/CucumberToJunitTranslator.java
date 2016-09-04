@@ -28,7 +28,8 @@ class CucumberToJunitTranslator implements Reporter, Formatter {
     private boolean inScenarioLifeCycle = false;
     private StepDescriptor currentStepDescriptor;
     private Exception toReThrow;
-    private boolean scenarioAborted;
+    private boolean hookExecutionFailed;
+    private boolean stepExecutionFailed = false;
 
     CucumberToJunitTranslator(CucumberExecutionContext context, ScenarioDescriptor scenarioDescriptor) {
         this.context = context;
@@ -113,22 +114,31 @@ class CucumberToJunitTranslator implements Reporter, Formatter {
 
     @Override
     public void match(Match match) {
-        if (scenarioAborted) {
+        currentStepDescriptor = fetchAndCheckRunnerStep();
+        if (scenarioAborted()) {
+            executionListener().executionSkipped(currentStepDescriptor, "previous hook/step failed");
             return;
         }
-        currentStepDescriptor = fetchAndCheckRunnerStep();
         executionListener().executionStarted(currentStepDescriptor);
     }
 
     @Override
     public void result(Result result) {
         if (Result.FAILED.equals(result.getStatus())) {
+            stepExecutionFailed = true;
             executionListener().executionFinished(currentStepDescriptor, TestExecutionResult.failed(result.getError()));
-        } else if (Result.PASSED.equals(result.getStatus())) {
-            executionListener().executionFinished(currentStepDescriptor, TestExecutionResult.successful());
-        } else {
-            throw new IllegalStateException("this is not handled properly yet");
+            return;
         }
+        if (Result.PASSED.equals(result.getStatus())) {
+            executionListener().executionFinished(currentStepDescriptor, TestExecutionResult.successful());
+            return;
+        }
+        if (Result.SKIPPED.getStatus().equals(result.getStatus())) {
+            //this case is already handled in the match callback
+            return;
+        }
+        throw new IllegalStateException("this is not handled properly yet");
+
     }
 
     @Override
@@ -146,9 +156,13 @@ class CucumberToJunitTranslator implements Reporter, Formatter {
 
     }
 
+    private boolean scenarioAborted() {
+        return hookExecutionFailed || stepExecutionFailed;
+    }
+
     private void handleHook(Result result) {
         if (Result.FAILED.equals(result.getStatus()) || (context.isStrict() && isPending(result.getError()))) {
-            scenarioAborted = true;
+            hookExecutionFailed = true;
             markRemainingStepsAsSkipped();
             this.toReThrow = (Exception) result.getError();
         }

@@ -47,7 +47,7 @@ class ExecutionRecordMatcher extends TypeSafeDiagnosingMatcher<ExecutionRecord> 
                     .appendText(" result: ").appendValue(item.testExecutionResult);
         }
         TestExecutionResult testExecutionResult = item.testExecutionResult;
-        boolean statusMatches = testExecutionResult != null && statusMatcher.matches(testExecutionResult.getStatus());
+        boolean statusMatches = testExecutionResult == null || statusMatcher.matches(testExecutionResult.getStatus());
         if (!statusMatches) {
             if (item.wasSkipped()) {
                 mismatchDescription.appendText("skipped");
@@ -57,7 +57,6 @@ class ExecutionRecordMatcher extends TypeSafeDiagnosingMatcher<ExecutionRecord> 
                 mismatchDescription.appendText("not finished");
             } else {
                 mismatchDescription.appendText("finished with ").appendValue(testExecutionResult.getStatus());
-
             }
         }
         return skippedMatches && statusMatches;

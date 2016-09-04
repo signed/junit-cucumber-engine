@@ -61,4 +61,9 @@ class ConfigurableStepDefinition implements StepDefinition {
     public boolean isScenarioScoped() {
         return false;
     }
+
+    @Override
+    public String toString() {
+        return stepText;
+    }
 }
