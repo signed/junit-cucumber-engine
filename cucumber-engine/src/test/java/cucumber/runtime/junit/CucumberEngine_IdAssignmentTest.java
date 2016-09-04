@@ -28,9 +28,9 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
 
     @Test
     public void pathToFeatureFile() throws Exception {
-        cucumberFeatureBuilder.path("/the/path");
+        cucumberFeatureBuilder.Feature("first line of feature description\nextended description");
 
-        assertThat(featureDescriptor().getUniqueId(), endsWith("feature", "/the/path"));
+        assertThat(featureDescriptor().getUniqueId(), endsWith("feature", "first-line-of-feature-description"));
     }
 
     @Test
