@@ -36,6 +36,14 @@ public class CucumberEngine_IdAssignmentTest implements CucumberEngineTestSugar 
     }
 
     @Test
+    public void scenarioId() throws Exception {
+        CucumberEngineDescriptor engineDescriptor = discoveredDescriptorsFor(anyFeatureFile().Scenario("first line of the scenario\nextended description"));
+        TestDescriptor scenarioDescriptor = engineDescriptor.getChildren().iterator().next().getChildren().iterator().next();
+
+        assertThat(scenarioDescriptor.getUniqueId(), equalTo(UniqueId.forEngine("cucumber-jvm").append("feature","feature/Path").append("scenario", "feature-name;first-line-of-the-scenario")));
+    }
+
+    @Test
     @Ignore
     public void name() throws Exception {
         CucumberEngineDescriptor engineDescriptor = discoveredDescriptorsFor(
