@@ -22,3 +22,7 @@ Feature: Just a sample
       | parameter | action | result |
       | person    | jump   | up     |
       | rabbit    | duck   | hidden |
+
+  Scenario: Steps with arguments
+  lets see how parameters are reported when step definitions are asked for location
+    Given 1 concatenated with 2 is 12

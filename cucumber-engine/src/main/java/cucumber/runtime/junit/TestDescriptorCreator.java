@@ -9,10 +9,12 @@ import cucumber.runtime.model.CucumberScenarioOutline;
 import cucumber.runtime.model.CucumberTagStatement;
 import gherkin.formatter.model.Step;
 import org.junit.platform.engine.TestDescriptor;
+import org.junit.platform.engine.TestSource;
 import org.junit.platform.engine.UniqueId;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 class TestDescriptorCreator {
 
@@ -38,20 +40,20 @@ class TestDescriptorCreator {
         UniqueId featureFileId = engineId.append("feature", cucumberFeature.getGherkinFeature().getId());
         FeatureDescriptor result = new FeatureDescriptor(featureFileId, cucumberFeature);
         for (CucumberTagStatement cucumberTagStatement : cucumberFeature.getFeatureElements()) {
-            result.addChild(createDescriptorFor(featureFileId, cucumberTagStatement));
+            result.addChild(createDescriptorFor(featureFileId, cucumberTagStatement, cucumberFeature));
         }
 
         return result;
     }
 
-    private TestDescriptor createDescriptorFor(UniqueId parentId, CucumberTagStatement cucumberTagStatement) {
+    private TestDescriptor createDescriptorFor(UniqueId parentId, CucumberTagStatement cucumberTagStatement, CucumberFeature cucumberFeature) {
         if (cucumberTagStatement instanceof CucumberScenario) {
-            return createScenarioDescriptorFor((CucumberScenario) cucumberTagStatement, parentId);
+            return createScenarioDescriptorFor((CucumberScenario) cucumberTagStatement, parentId, cucumberFeature);
         }
-        return createOutlineDescriptorFor((CucumberScenarioOutline) cucumberTagStatement, parentId);
+        return createOutlineDescriptorFor((CucumberScenarioOutline) cucumberTagStatement, parentId, cucumberFeature);
     }
 
-    private ScenarioDescriptor createScenarioDescriptorFor(CucumberScenario cucumberScenario, UniqueId parentId) {
+    private ScenarioDescriptor createScenarioDescriptorFor(CucumberScenario cucumberScenario, UniqueId parentId, CucumberFeature cucumberFeature) {
         final UniqueId scenarioId = parentId.append("scenario", extractId(cucumberScenario));
         final ScenarioDescriptor descriptor = new ScenarioDescriptor(scenarioId, cucumberScenario.getVisualName(), cucumberScenario);
 
@@ -69,21 +71,26 @@ class TestDescriptorCreator {
                 allSteps.add(copy);
             }
         }
+
+        CucumberInsight insight = new CucumberInsight(cucumberFeature);
+        runtime.getGlue().reportStepDefinitions(insight);
         allSteps.addAll(cucumberScenario.getSteps());
         for (Step step : allSteps) {
-            descriptor.addChild(new StepDescriptor(scenarioId.append("step", step.getName()), step.getName(), step));
+            Optional<TestSource> source = insight.sourcesFor(step);
+            StepDescriptor stepDescriptor = new StepDescriptor(scenarioId.append("step", step.getName()), step.getName(), step, source);
+            descriptor.addChild(stepDescriptor);
         }
         return descriptor;
     }
 
-    private OutlineDescriptor createOutlineDescriptorFor(CucumberScenarioOutline cucumberScenarioOutline, UniqueId parentId) {
+    private OutlineDescriptor createOutlineDescriptorFor(CucumberScenarioOutline cucumberScenarioOutline, UniqueId parentId, CucumberFeature cucumberFeature) {
         UniqueId scenarioOutlineId = parentId.append("scenario-outline", extractId(cucumberScenarioOutline));
         OutlineDescriptor descriptor = new OutlineDescriptor(scenarioOutlineId, cucumberScenarioOutline.getVisualName(), cucumberScenarioOutline);
 
         for (CucumberExamples cucumberExamples : cucumberScenarioOutline.getCucumberExamplesList()) {
             List<CucumberScenario> exampleScenarios = cucumberExamples.createExampleScenarios();
             for (CucumberScenario exampleScenario : exampleScenarios) {
-                descriptor.addChild(createScenarioDescriptorFor(exampleScenario, scenarioOutlineId));
+                descriptor.addChild(createScenarioDescriptorFor(exampleScenario, scenarioOutlineId, cucumberFeature));
             }
         }
         return descriptor;
@@ -92,4 +99,5 @@ class TestDescriptorCreator {
     private String extractId(CucumberTagStatement cucumberScenario) {
         return cucumberScenario.getGherkinModel().getId();
     }
+
 }

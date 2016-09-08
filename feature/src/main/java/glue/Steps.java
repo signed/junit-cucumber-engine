@@ -67,6 +67,11 @@ public class Steps {
         sleep();
     }
 
+    @Given("^(\\d+) concatenated with (\\d+) is (.+)$")
+    public void concatenatedWithIs(int first, int second, String result) throws Throwable {
+        sleep();
+    }
+
     private void sleep(){
         try {
             Thread.sleep(1000);
