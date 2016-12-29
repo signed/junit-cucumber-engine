@@ -6,16 +6,20 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
+import static java.lang.System.currentTimeMillis;
+
 public class Steps {
 
     @Before
     public void before(){
-        System.out.println("execute before hook");
+        dumpMessage("execute before hook");
+        sleep();
     }
 
     @After
     public void after(){
-        System.out.println("execute after hook");
+        dumpMessage("execute after hook");
+        sleep();
     }
 
     @Given("^alpha$")
@@ -71,6 +75,11 @@ public class Steps {
     @Given("^(\\d+) concatenated with (\\d+) is (.+)$")
     public void concatenatedWithIs(int first, int second, String result) throws Throwable {
         sleep();
+    }
+
+    private void dumpMessage(String message) {
+        System.out.println(String.format("[%d] %s", currentTimeMillis(), message));
+        System.out.flush();
     }
 
     private void sleep(){
