@@ -29,7 +29,7 @@ class ConfigurableStepDefinition implements StepDefinition {
 
     @Override
     public String getLocation(boolean detail) {
-        return "stand-in-location";
+        return "stand.in.Step.method() in file:/tmp";
     }
 
     @Override
