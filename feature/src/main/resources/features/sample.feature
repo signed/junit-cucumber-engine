@@ -8,7 +8,7 @@ Feature: Just a sample
   Scenario: Samples are good
   A scenario deserves a description as well.
   Even multiple lines
-    Given A
+    And A
     When B
     Then C
 
