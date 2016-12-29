@@ -79,7 +79,7 @@ class TestDescriptorCreator {
         allSteps.addAll(cucumberScenario.getSteps());
         for (Step step : allSteps) {
             Optional<TestSource> source = insight.sourcesFor(step);
-            StepDescriptor stepDescriptor = new StepDescriptor(scenarioId.append("step", step.getName()), step.getName(), step, source);
+            StepDescriptor stepDescriptor = new StepDescriptor(scenarioId.append("step", step.getName()), DisplayNames.displayNameFor(step), step, source);
             descriptor.addChild(stepDescriptor);
         }
         return descriptor;
