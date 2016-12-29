@@ -14,11 +14,12 @@ import java.util.List;
 import java.util.Optional;
 
 class CucumberInsight implements StepDefinitionReporter {
-    private final MethodResolver methodResolver = new MethodResolver();
     private final List<StepDefinition> stepDefinitions = new ArrayList<>();
+    private final MethodResolver methodResolver;
     private final CucumberFeature cucumberFeature;
 
-    public CucumberInsight(CucumberFeature cucumberFeature) {
+    CucumberInsight(CucumberFeature cucumberFeature, MethodResolver methodResolver) {
+        this.methodResolver = methodResolver;
         this.cucumberFeature = cucumberFeature;
     }
 

@@ -53,7 +53,8 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
         Collection<? extends Backend> backends = loadBackends(resourceLoader, classFinder);
 
         Runtime runtime = new Runtime(resourceLoader, classLoader, backends, runtimeOptions, StopWatch.SYSTEM, null);
-        return new TestDescriptorCreator(uniqueId, runtimeOptions, runtime).createEngineDescriptorFor(cucumberFeatures);
+        MethodResolver methodResolver = new MethodResolver();
+        return new TestDescriptorCreator(uniqueId, runtimeOptions, runtime, methodResolver).createEngineDescriptorFor(cucumberFeatures);
     }
 
     @Override

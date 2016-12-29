@@ -21,11 +21,13 @@ class TestDescriptorCreator {
     private final UniqueId engineId;
     private final RuntimeOptions runtimeOptions;
     private final Runtime runtime;
+    private final MethodResolver methodResolver;
 
-    TestDescriptorCreator(UniqueId uniqueId, RuntimeOptions runtimeOptions, Runtime runtime) {
+    TestDescriptorCreator(UniqueId uniqueId, RuntimeOptions runtimeOptions, Runtime runtime, MethodResolver methodResolver) {
         this.engineId = uniqueId;
         this.runtimeOptions = runtimeOptions;
         this.runtime = runtime;
+        this.methodResolver = methodResolver;
     }
 
     CucumberEngineDescriptor createEngineDescriptorFor(List<CucumberFeature> cucumberFeatures) {
@@ -72,7 +74,7 @@ class TestDescriptorCreator {
             }
         }
 
-        CucumberInsight insight = new CucumberInsight(cucumberFeature);
+        CucumberInsight insight = new CucumberInsight(cucumberFeature, methodResolver);
         runtime.getGlue().reportStepDefinitions(insight);
         allSteps.addAll(cucumberScenario.getSteps());
         for (Step step : allSteps) {

@@ -10,6 +10,7 @@ import cucumber.runtime.xstream.LocalizedXStreams;
 import org.junit.platform.engine.ExecutionRequest;
 import org.junit.platform.engine.UniqueId;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -46,7 +47,8 @@ class CucumberEngineFixture {
         Collection<? extends Backend> backends = Collections.singleton(new BackendStub());
         Runtime runtime = new Runtime(null, classLoader, backends, runtimeOptions, StopWatch.SYSTEM, glue);
 
-        return new TestDescriptorCreator(engineId, runtimeOptions, runtime).createEngineDescriptorFor(Collections.singletonList(feature.build()));
+        MethodResolver methodResolver = alwaysResolveToString();
+        return new TestDescriptorCreator(engineId, runtimeOptions, runtime, methodResolver).createEngineDescriptorFor(Collections.singletonList(feature.build()));
     }
 
     ExecutionRecord executionRecordFor(String stepText) {
@@ -63,6 +65,19 @@ class CucumberEngineFixture {
 
     void stepImplementationFor(String stepText, Runnable stepExecution) {
         glue.addStepDefinition(new ConfigurableStepDefinition(stepText, stepExecution));
+    }
+
+    private MethodResolver alwaysResolveToString() {
+        return new MethodResolver(){
+            @Override
+            Method resolve(String signatureWithPath) {
+                try {
+                    return Object.class.getMethod("toString");
+                } catch (NoSuchMethodException e) {
+                    throw new RuntimeException("There is no toString method on object. Nice!");
+                }
+            }
+        };
     }
 
 }
