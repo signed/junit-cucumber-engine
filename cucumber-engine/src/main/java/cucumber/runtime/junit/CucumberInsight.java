@@ -6,7 +6,7 @@ import cucumber.runtime.model.CucumberFeature;
 import gherkin.formatter.Argument;
 import gherkin.formatter.model.Step;
 import org.junit.platform.engine.TestSource;
-import org.junit.platform.engine.support.descriptor.JavaMethodSource;
+import org.junit.platform.engine.support.descriptor.MethodSource;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -42,9 +42,9 @@ class CucumberInsight implements StepDefinitionReporter {
         return Optional.empty();
     }
 
-    private JavaMethodSource resolveTestSource(StepDefinition stepDefinition) {
+    private MethodSource resolveTestSource(StepDefinition stepDefinition) {
         String details = stepDefinition.getLocation(true);
         Method method = methodResolver.resolve(details);
-        return new JavaMethodSource(method);
+        return new MethodSource(method);
     }
 }
