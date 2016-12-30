@@ -64,7 +64,7 @@ class CapturingEngineExecutionListener implements EngineExecutionListener {
     }
 
     ExecutionRecord executionRecordFor(String theString) {
-        List<ExecutionRecord> collect = recordedExecution.values().stream().filter(recorded -> theString.equals(recorded.testDescriptor.getDisplayName())).collect(Collectors.toList());
+        List<ExecutionRecord> collect = recordedExecution.values().stream().filter(recorded -> recorded.testDescriptor.getDisplayName().endsWith(theString)).collect(Collectors.toList());
         if (collect.size() > 1) {
             throw new IllegalStateException("there should be exactly one");
         }

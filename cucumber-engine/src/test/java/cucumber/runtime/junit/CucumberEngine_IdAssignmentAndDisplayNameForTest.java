@@ -1,5 +1,6 @@
 package cucumber.runtime.junit;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.platform.engine.TestDescriptor;
@@ -31,7 +32,7 @@ public class CucumberEngine_IdAssignmentAndDisplayNameForTest implements Cucumbe
         feature.Feature("first line of feature description\nextended description");
 
         assertThat(featureDescriptor().getUniqueId(), endsWith("feature", "first-line-of-feature-description"));
-        assertThat(featureDescriptor().getDisplayName(), equalTo("first line of feature description"));
+        assertThat(featureDescriptor().getDisplayName(), CoreMatchers.endsWith("first line of feature description"));
     }
 
     @Test
@@ -44,10 +45,11 @@ public class CucumberEngine_IdAssignmentAndDisplayNameForTest implements Cucumbe
 
     @Test
     public void scenarioStep() throws Exception {
-        feature.Scenario("first line of the scenario\nextended description").AStep("step text");
+        feature.Scenario("first line of the scenario\nextended description")
+                .AStep("step text");
 
         assertThat(stepInScenarioDescriptor().getUniqueId(), endsWith("step", "step text"));
-        assertThat(stepInScenarioDescriptor().getDisplayName(), equalTo("step text"));
+        assertThat(stepInScenarioDescriptor().getDisplayName(), CoreMatchers.endsWith("step text"));
     }
 
     @Test
@@ -75,7 +77,7 @@ public class CucumberEngine_IdAssignmentAndDisplayNameForTest implements Cucumbe
                 .Example("one", "two");
 
         assertThat(stepInScenarioOutlineDescriptor().getUniqueId(), endsWith("step", "one two"));
-        assertThat(stepInScenarioOutlineDescriptor().getDisplayName(), equalTo("one two"));
+        assertThat(stepInScenarioOutlineDescriptor().getDisplayName(), CoreMatchers.endsWith("one two"));
     }
 
     private TestDescriptor stepInScenarioDescriptor() {
