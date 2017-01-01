@@ -42,8 +42,6 @@ public class CucumberEngine extends HierarchicalTestEngine<CucumberExecutionCont
 
         RuntimeOptionsFactory runtimeOptionsFactory = new RuntimeOptionsFactory(clazz);
         RuntimeOptions runtimeOptions = runtimeOptionsFactory.create();
-        runtimeOptions.getFeaturePaths().add("classpath:features");
-        runtimeOptions.getGlue().add("glue");
 
         ClassLoader classLoader = clazz.getClassLoader();
         ResourceLoader resourceLoader = new MultiLoader(classLoader);

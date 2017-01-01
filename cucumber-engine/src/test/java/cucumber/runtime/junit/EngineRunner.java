@@ -1,5 +1,6 @@
 package cucumber.runtime.junit;
 
+import cucumber.api.CucumberOptions;
 import org.junit.platform.runner.IncludeEngines;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
@@ -21,5 +22,6 @@ import org.junit.runner.RunWith;
  */
 @RunWith(JUnitPlatform.class)
 @IncludeEngines("cucumber-jvm")
+@CucumberOptions(strict = true, glue = {"glue"}, features = {"classpath:features"})
 public class EngineRunner {
 }
