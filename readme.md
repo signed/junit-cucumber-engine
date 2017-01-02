@@ -56,12 +56,15 @@ cd junit-cucumber-engine
 
 # Repository layout
 - feature/
+
   Contains a sample feature with the corresponding step definitions.
   *vanilla* and *cucumber-engine* have a compile scope dependency to this project and share this feature for a quick test run for comparisons.
 - cucumber-engine/
+
   Contains the implementation of the junit-cucumber-engine.
   To run the sample feature execute *EngineRunner*
 - vanilla/
+
   Contains code to execute the sample feature with the existing cucumber-junit.
   Serves as a gold master for the new engine.
 
