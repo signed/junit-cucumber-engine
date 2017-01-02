@@ -2,7 +2,7 @@
 1. A project for me to tinker with junit and cucumber internals and get to learn the concepts and capabilities.
 1. Provide a native junit engine to run cucumber features.
 
-# How can use the junit cucumber engine?
+# How can I use the junit cucumber engine?
 There is no public release yet.
 Just clone the repository and install the engine into your local maven repository.
 
