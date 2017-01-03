@@ -6,6 +6,9 @@ import cucumber.runtime.model.CucumberFeature;
 import gherkin.formatter.Argument;
 import gherkin.formatter.model.Step;
 import org.junit.platform.engine.TestSource;
+import org.junit.platform.engine.support.descriptor.ClasspathResourceSource;
+import org.junit.platform.engine.support.descriptor.CompositeTestSource;
+import org.junit.platform.engine.support.descriptor.FilePosition;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 
 import java.lang.reflect.Method;
@@ -29,7 +32,10 @@ class CucumberInsight implements StepDefinitionReporter {
     }
 
     Optional<TestSource> sourcesFor(Step step) {
-        return stepDefinitionFor(step).map(this::resolveTestSource);
+        List<TestSource> sources = new ArrayList<>();
+        stepDefinitionFor(step).map(this::resolveTestSource).ifPresent(sources::add);
+        sources.add(new ClasspathResourceSource(cucumberFeature.getPath(), new FilePosition(step.getLine(), 1)));
+        return Optional.of(new CompositeTestSource(sources));
     }
 
     private Optional<StepDefinition> stepDefinitionFor(Step step) {
