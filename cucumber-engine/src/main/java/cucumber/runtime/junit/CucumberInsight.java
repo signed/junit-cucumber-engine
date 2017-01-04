@@ -11,6 +11,7 @@ import org.junit.platform.engine.support.descriptor.CompositeTestSource;
 import org.junit.platform.engine.support.descriptor.FilePosition;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 
+import javax.swing.text.html.Option;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +36,13 @@ class CucumberInsight implements StepDefinitionReporter {
         List<TestSource> sources = new ArrayList<>();
         stepDefinitionFor(step).map(this::resolveTestSource).ifPresent(sources::add);
         //sources.add(new ClasspathResourceSource(cucumberFeature.getPath(), new FilePosition(step.getLine(), 1)));
+        if(sources.isEmpty()){
+            return Optional.empty();
+        }
         if (sources.size() == 1) {
             return Optional.of(sources.get(0));
         }
-        CompositeTestSource blub = new CompositeTestSource(sources);
-        return Optional.of(blub);
+        return Optional.of(new CompositeTestSource(sources));
     }
 
     private Optional<StepDefinition> stepDefinitionFor(Step step) {
