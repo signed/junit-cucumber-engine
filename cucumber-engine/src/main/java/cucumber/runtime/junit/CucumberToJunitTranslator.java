@@ -33,7 +33,7 @@ class CucumberToJunitTranslator implements Reporter, Formatter {
 
     CucumberToJunitTranslator(CucumberExecutionContext context, ScenarioDescriptor scenarioDescriptor) {
         this.context = context;
-        this.stepDescriptors = scenarioDescriptor.childrenAsQeueu();
+        this.stepDescriptors = scenarioDescriptor.childrenAsQueue();
     }
 
     Exception somethingToRethrow() {

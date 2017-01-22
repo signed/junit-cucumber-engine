@@ -3,19 +3,23 @@ package cucumber.runtime.junit;
 import cucumber.api.StepDefinitionReporter;
 import cucumber.runtime.StepDefinition;
 import cucumber.runtime.model.CucumberFeature;
+import cucumber.runtime.model.CucumberScenario;
 import gherkin.formatter.Argument;
+import gherkin.formatter.model.BasicStatement;
 import gherkin.formatter.model.Step;
 import org.junit.platform.engine.TestSource;
-import org.junit.platform.engine.support.descriptor.ClasspathResourceSource;
 import org.junit.platform.engine.support.descriptor.CompositeTestSource;
 import org.junit.platform.engine.support.descriptor.FilePosition;
+import org.junit.platform.engine.support.descriptor.FileSource;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 
-import javax.swing.text.html.Option;
 import java.lang.reflect.Method;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 class CucumberInsight implements StepDefinitionReporter {
     private final List<StepDefinition> stepDefinitions = new ArrayList<>();
@@ -32,10 +36,18 @@ class CucumberInsight implements StepDefinitionReporter {
         stepDefinitions.add(stepDefinition);
     }
 
+    Optional<TestSource> sourcesFor(CucumberFeature cucumberFeature) {
+        return ofNullable(fileSourceFor(cucumberFeature.getGherkinFeature()));
+    }
+
+    Optional<TestSource> sourcesFor(CucumberScenario cucumberScenario) {
+        return ofNullable(fileSourceFor(cucumberScenario.getGherkinModel()));
+    }
+
     Optional<TestSource> sourcesFor(Step step) {
         List<TestSource> sources = new ArrayList<>();
+        sources.add(fileSourceFor(step));
         stepDefinitionFor(step).map(this::resolveTestSource).ifPresent(sources::add);
-        //sources.add(new ClasspathResourceSource(cucumberFeature.getPath(), new FilePosition(step.getLine(), 1)));
         if(sources.isEmpty()){
             return Optional.empty();
         }
@@ -43,6 +55,12 @@ class CucumberInsight implements StepDefinitionReporter {
             return Optional.of(sources.get(0));
         }
         return Optional.of(new CompositeTestSource(sources));
+    }
+
+    private TestSource fileSourceFor(BasicStatement basicStatement) {
+        String path = cucumberFeature.getPath();
+        FilePosition filePosition = new FilePosition(basicStatement.getLine(), 1);
+        return new FileSource(Paths.get(path).toAbsolutePath().toFile(), filePosition);
     }
 
     private Optional<StepDefinition> stepDefinitionFor(Step step) {

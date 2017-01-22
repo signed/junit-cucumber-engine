@@ -39,25 +39,30 @@ class TestDescriptorCreator {
     }
 
     private FeatureDescriptor createFeatureDescriptorFor(CucumberFeature cucumberFeature) {
+        CucumberInsight cucumberInsight = new CucumberInsight(cucumberFeature, methodResolver);
+        runtime.getGlue().reportStepDefinitions(cucumberInsight);
+
         UniqueId featureFileId = engineId.append("feature", cucumberFeature.getGherkinFeature().getId());
-        FeatureDescriptor result = new FeatureDescriptor(featureFileId, cucumberFeature);
+        Optional<TestSource> testSource = cucumberInsight.sourcesFor(cucumberFeature);
+        FeatureDescriptor result = new FeatureDescriptor(featureFileId, cucumberFeature, testSource);
         for (CucumberTagStatement cucumberTagStatement : cucumberFeature.getFeatureElements()) {
-            result.addChild(createDescriptorFor(featureFileId, cucumberTagStatement, cucumberFeature));
+            result.addChild(createDescriptorFor(featureFileId, cucumberTagStatement, cucumberFeature, cucumberInsight));
         }
 
         return result;
     }
 
-    private TestDescriptor createDescriptorFor(UniqueId parentId, CucumberTagStatement cucumberTagStatement, CucumberFeature cucumberFeature) {
+    private TestDescriptor createDescriptorFor(UniqueId parentId, CucumberTagStatement cucumberTagStatement, CucumberFeature cucumberFeature, CucumberInsight cucumberInsight) {
         if (cucumberTagStatement instanceof CucumberScenario) {
-            return createScenarioDescriptorFor((CucumberScenario) cucumberTagStatement, parentId, cucumberFeature);
+            return createScenarioDescriptorFor((CucumberScenario) cucumberTagStatement, parentId, cucumberInsight);
         }
         return createOutlineDescriptorFor((CucumberScenarioOutline) cucumberTagStatement, parentId, cucumberFeature);
     }
 
-    private ScenarioDescriptor createScenarioDescriptorFor(CucumberScenario cucumberScenario, UniqueId parentId, CucumberFeature cucumberFeature) {
+    private ScenarioDescriptor createScenarioDescriptorFor(CucumberScenario cucumberScenario, UniqueId parentId, CucumberInsight cucumberInsight) {
         final UniqueId scenarioId = parentId.append("scenario", extractId(cucumberScenario));
-        final ScenarioDescriptor descriptor = new ScenarioDescriptor(scenarioId, cucumberScenario.getVisualName(), cucumberScenario);
+        Optional<TestSource> scenarioSource = cucumberInsight.sourcesFor(cucumberScenario);
+        final ScenarioDescriptor descriptor = new ScenarioDescriptor(scenarioId, cucumberScenario.getVisualName(), cucumberScenario, scenarioSource);
 
         List<Step> allSteps = new ArrayList<>();
         if (null != cucumberScenario.getCucumberBackground()) {
@@ -74,12 +79,10 @@ class TestDescriptorCreator {
             }
         }
 
-        CucumberInsight insight = new CucumberInsight(cucumberFeature, methodResolver);
-        runtime.getGlue().reportStepDefinitions(insight);
         allSteps.addAll(cucumberScenario.getSteps());
         for (Step step : allSteps) {
-            Optional<TestSource> source = insight.sourcesFor(step);
-            StepDescriptor stepDescriptor = new StepDescriptor(scenarioId.append("step", step.getName()), DisplayNames.displayNameFor(step), step, source);
+            Optional<TestSource> stepSource = cucumberInsight.sourcesFor(step);
+            StepDescriptor stepDescriptor = new StepDescriptor(scenarioId.append("step", step.getName()), DisplayNames.displayNameFor(step), step, stepSource);
             descriptor.addChild(stepDescriptor);
         }
         return descriptor;
@@ -92,7 +95,7 @@ class TestDescriptorCreator {
         for (CucumberExamples cucumberExamples : cucumberScenarioOutline.getCucumberExamplesList()) {
             List<CucumberScenario> exampleScenarios = cucumberExamples.createExampleScenarios();
             for (CucumberScenario exampleScenario : exampleScenarios) {
-                descriptor.addChild(createScenarioDescriptorFor(exampleScenario, scenarioOutlineId, cucumberFeature));
+                descriptor.addChild(createScenarioDescriptorFor(exampleScenario, scenarioOutlineId, new CucumberInsight(cucumberFeature, methodResolver)));
             }
         }
         return descriptor;

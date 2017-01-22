@@ -2,11 +2,13 @@ package cucumber.runtime.junit;
 
 import cucumber.runtime.model.CucumberScenario;
 import org.junit.platform.engine.TestDescriptor;
+import org.junit.platform.engine.TestSource;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor;
 import org.junit.platform.engine.support.hierarchical.Node;
 
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
@@ -14,9 +16,10 @@ class ScenarioDescriptor extends AbstractTestDescriptor implements Node<Cucumber
 
     private final CucumberScenario cucumberScenario;
 
-    protected ScenarioDescriptor(UniqueId uniqueId, String displayName, CucumberScenario cucumberScenario) {
+    ScenarioDescriptor(UniqueId uniqueId, String displayName, CucumberScenario cucumberScenario, Optional<TestSource> featureSource) {
         super(uniqueId, displayName);
         this.cucumberScenario = cucumberScenario;
+        featureSource.ifPresent(this::setSource);
     }
 
     @Override
@@ -29,7 +32,7 @@ class ScenarioDescriptor extends AbstractTestDescriptor implements Node<Cucumber
         return context;
     }
 
-    public Queue<StepDescriptor> childrenAsQeueu() {
+    Queue<StepDescriptor> childrenAsQueue() {
         Set<? extends TestDescriptor> children = this.getChildren();
         Queue<StepDescriptor> steps = new LinkedList<>();
         for (TestDescriptor child : children) {
@@ -52,6 +55,5 @@ class ScenarioDescriptor extends AbstractTestDescriptor implements Node<Cucumber
     public boolean isTest() {
         return false;
     }
-
 
 }
